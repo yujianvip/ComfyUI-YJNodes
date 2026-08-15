@@ -6,6 +6,10 @@ import {
   buildSerializedNodeMap,
   defaultCandidateName,
   extractModelReferencesFromNode,
+  groupMatcherResults,
+  modelSearchName,
+  resolveWidgetChoice,
+  shouldDisableCandidateSelect,
 } from "./core.js";
 
 const I18N = {
@@ -26,7 +30,6 @@ const I18N = {
     source: "来源",
     original: "原始模型名",
     replacement: "匹配 / 替换",
-    chooseCandidate: "请选择候选模型",
     skip: "不调整",
     score: "匹配度",
     reasons: "原因",
@@ -60,7 +63,6 @@ const I18N = {
     source: "Source",
     original: "Original Model",
     replacement: "Match / Replace",
-    chooseCandidate: "Choose a candidate",
     skip: "Skip",
     score: "Score",
     reasons: "Reasons",
@@ -229,62 +231,62 @@ function showMatcherDialog(results, selectedCount) {
   `;
 
   const tbody = dialog.querySelector("tbody");
-  for (const result of results) {
-    const status = statusForResult(result);
-    const candidates = result.candidates || [];
-    const best = candidates[0];
-    const defaultName = defaultCandidateName(candidates);
-    const applyable = result.can_apply !== false;
-    const options = candidates
-      .map((candidate) => {
-        const selected = candidate.name === defaultName ? "selected" : "";
-        return `<option value="${escapeHtml(candidate.name)}" ${selected}>${escapeHtml(candidate.display_name)}</option>`;
-      })
-      .join("");
-    const placeholder = defaultName
-      ? ""
-      : `<option value="" selected>${lang.chooseCandidate}</option>`;
+  let entryIndex = 0;
+  for (const group of groupMatcherResults(results)) {
     const row = document.createElement("tr");
-    row.dataset.nodeId = result.node_id;
-    row.dataset.widgetIndex = result.widget_index;
-    row.dataset.canApply = String(applyable);
-    row.dataset.status = status.key;
-    row.yjCandidates = candidates;
-    row.yjResult = result;
-    const reasonTitle = best ? best.reasons.map(reasonText).join(" / ") : "";
+    const entries = group.map((result) => {
+      const id = String(entryIndex++);
+      const candidates = result.candidates || [];
+      const best = candidates[0];
+      const status = statusForResult(result);
+      const defaultName = defaultCandidateName(candidates);
+      const applyable = result.can_apply !== false;
+      const options = candidates.map((candidate) => {
+        const selected = candidate.name === defaultName ? "selected" : "";
+        return `<option value="${escapeHtml(candidate.name)}" ${selected}>${escapeHtml(candidate.name)}</option>`;
+      }).join("");
+      return { id, result, candidates, best, status, applyable, options };
+    });
     row.innerHTML = `
       <td>
-        <div class="yj-mm-model-meta">
-          <button class="yj-mm-folder" title="${lang.openFolder}" aria-label="${lang.openFolder}">📁</button>
-          <div class="yj-mm-meta-copy">
-            <span class="yj-mm-status" title="${escapeHtml(reasonTitle)}">${status.label}</span>
-            <span class="yj-mm-node-type">${escapeHtml(result.node_type || result.widget_name || "")}</span>
-          </div>
-        </div>
+        <div class="yj-mm-cell-stack">${entries.map(({ id, result, best, status }) => `
+          <div class="yj-mm-cell-line yj-mm-model-meta">
+            <button class="yj-mm-folder" data-entry="${id}" title="${lang.openFolder}" aria-label="${lang.openFolder}">📁</button>
+            <div class="yj-mm-meta-copy">
+              <span class="yj-mm-status yj-mm-entry-status" data-entry="${id}" data-status="${status.key}" title="${escapeHtml(best ? best.reasons.map(reasonText).join(" / ") : "")}">${status.label}</span>
+              <span class="yj-mm-node-type">${escapeHtml([result.node_type, result.widget_name].filter(Boolean).join(" · "))}</span>
+            </div>
+          </div>`).join("")}</div>
       </td>
-      <td class="yj-mm-original" title="${escapeHtml(result.value)}">${escapeHtml(result.value)}</td>
-      <td><select class="yj-mm-select" ${applyable ? "" : "disabled"}>${placeholder}${options || '<option value=""></option>'}</select></td>
-      <td><label class="yj-mm-skip-label"><input class="yj-mm-skip" type="checkbox" ${applyable ? "" : "checked disabled"}><span>${lang.skip}</span></label></td>
-      <td class="yj-mm-score">${best ? `${best.score}%` : ""}</td>
+      <td><div class="yj-mm-cell-stack">${entries.map(({ id, result }) => `
+        <div class="yj-mm-cell-line yj-mm-original" data-entry="${id}" title="${escapeHtml(result.value)}">
+          <span class="yj-mm-widget-name">${escapeHtml(result.widget_name || "")}</span>
+          <span class="yj-mm-original-value">${escapeHtml(result.value)}</span>
+        </div>`).join("")}</div></td>
+      <td><div class="yj-mm-cell-stack">${entries.map(({ id, applyable, options }) => `
+        <div class="yj-mm-cell-line"><select class="yj-mm-select" data-entry="${id}" ${applyable ? "" : "disabled"}>${options || '<option value=""></option>'}</select></div>`).join("")}</div></td>
+      <td><div class="yj-mm-cell-stack">${entries.map(({ id, applyable }) => `
+        <div class="yj-mm-cell-line"><label class="yj-mm-skip-label"><input class="yj-mm-skip" data-entry="${id}" type="checkbox" ${applyable ? "" : "checked disabled"}><span>${lang.skip}</span></label></div>`).join("")}</div></td>
+      <td><div class="yj-mm-cell-stack">${entries.map(({ id, best }) => `
+        <div class="yj-mm-cell-line yj-mm-score" data-entry="${id}">${best ? `${best.score}%` : ""}</div>`).join("")}</div></td>
       <td>
-        <button class="yj-mm-action yj-mm-hf">HF</button>
-        <button class="yj-mm-action yj-mm-c">C</button>
-        <button class="yj-mm-action yj-mm-g">G</button>
+        <div class="yj-mm-cell-stack">${entries.map(({ id }) => `
+          <div class="yj-mm-cell-line yj-mm-actions" data-entry="${id}">
+            <button class="yj-mm-action yj-mm-hf">HF</button>
+            <button class="yj-mm-action yj-mm-c">C</button>
+            <button class="yj-mm-action yj-mm-g">G</button>
+          </div>`).join("")}</div>
       </td>
     `;
-    row.querySelector(".yj-mm-select").addEventListener("change", () => {
-      updateRowCandidate(row);
-      refreshStats(dialog);
-      applyActiveFilter(dialog);
-    });
-    row.querySelector(".yj-mm-folder").addEventListener("click", () => openModelFolder(row));
+    for (const entry of entries) wireResultEntry(dialog, row, entry);
+    updateGroupedRowStatuses(row);
     tbody.appendChild(row);
   }
 
   backdrop.appendChild(dialog);
   document.body.appendChild(backdrop);
   refreshStats(dialog);
-  wireDialogBehavior(backdrop, dialog, results);
+  wireDialogBehavior(backdrop, dialog);
 }
 
 function escapeHtml(value) {
@@ -314,23 +316,57 @@ function statusForCandidate(candidate) {
   return { key: "fuzzy", label: t().fuzzy };
 }
 
-function updateRowCandidate(row) {
-  const selectedName = row.querySelector(".yj-mm-select")?.value;
-  const candidates = row.yjCandidates || [];
+function updateGroupedRowStatuses(row) {
+  row.dataset.statuses = [...row.querySelectorAll(".yj-mm-entry-status")]
+    .map((element) => element.dataset.status)
+    .filter(Boolean)
+    .join(" ");
+}
+
+function updateEntryCandidate(dialog, row, select) {
+  const selectedName = select.value;
+  const candidates = select.yjCandidates || [];
   const candidate = candidates.find((item) => item.name === selectedName) || candidates[0];
   const status = statusForCandidate(candidate);
-  row.dataset.status = status.key;
-  row.querySelector(".yj-mm-status").textContent = status.label;
-  row.querySelector(".yj-mm-status").title = candidate
+  const entryId = select.dataset.entry;
+  const statusElement = row.querySelector(`.yj-mm-entry-status[data-entry="${entryId}"]`);
+  const scoreElement = row.querySelector(`.yj-mm-score[data-entry="${entryId}"]`);
+  statusElement.dataset.status = status.key;
+  statusElement.textContent = status.label;
+  statusElement.title = candidate
     ? candidate.reasons.map(reasonText).join(" / ")
     : "";
-  row.querySelector(".yj-mm-score").textContent = candidate ? `${candidate.score}%` : "";
+  scoreElement.textContent = candidate ? `${candidate.score}%` : "";
+  updateGroupedRowStatuses(row);
+  refreshStats(dialog);
+  applyActiveFilter(dialog);
+}
+
+function wireResultEntry(dialog, row, entry) {
+  const selector = `[data-entry="${entry.id}"]`;
+  const select = row.querySelector(`.yj-mm-select${selector}`);
+  const skipCheckbox = row.querySelector(`.yj-mm-skip${selector}`);
+  const folderButton = row.querySelector(`.yj-mm-folder${selector}`);
+  const actions = row.querySelector(`.yj-mm-actions${selector}`);
+  select.yjCandidates = entry.candidates;
+  select.yjResult = entry.result;
+  select.yjSkip = skipCheckbox;
+  select.addEventListener("change", () => updateEntryCandidate(dialog, row, select));
+  skipCheckbox.addEventListener("change", () => {
+    select.disabled = shouldDisableCandidateSelect(entry.applyable, skipCheckbox.checked);
+  });
+  folderButton.addEventListener("click", () => openModelFolder(select));
+  const query = entry.result.value || "";
+  actions.querySelector(".yj-mm-hf").onclick = () => window.open(searchUrl("hf", query), "_blank", "noopener,noreferrer");
+  actions.querySelector(".yj-mm-c").onclick = () => window.open(searchUrl("c", query), "_blank", "noopener,noreferrer");
+  actions.querySelector(".yj-mm-g").onclick = () => window.open(searchUrl("g", query), "_blank", "noopener,noreferrer");
 }
 
 function refreshStats(dialog) {
   const counts = { exact: 0, fuzzy: 0, missing: 0 };
-  for (const row of dialog.querySelectorAll("tbody tr")) {
-    counts[row.dataset.status] = (counts[row.dataset.status] || 0) + 1;
+  for (const statusElement of dialog.querySelectorAll(".yj-mm-entry-status")) {
+    const status = statusElement.dataset.status;
+    counts[status] = (counts[status] || 0) + 1;
   }
   for (const [status, count] of Object.entries(counts)) {
     const countElement = dialog.querySelector(`.yj-mm-filter[data-filter="${status}"] .yj-mm-count`);
@@ -341,14 +377,15 @@ function refreshStats(dialog) {
 function applyActiveFilter(dialog) {
   const active = dialog.querySelector(".yj-mm-filter.is-active")?.dataset.filter || "";
   for (const row of dialog.querySelectorAll("tbody tr")) {
-    row.hidden = Boolean(active && row.dataset.status !== active);
+    const statuses = (row.dataset.statuses || "").split(" ");
+    row.hidden = Boolean(active && !statuses.includes(active));
   }
 }
 
-async function openModelFolder(row) {
-  const selectedName = row.querySelector(".yj-mm-select")?.value || "";
-  const candidate = (row.yjCandidates || []).find((item) => item.name === selectedName);
-  const modelType = candidate?.type || row.yjResult?.model_types?.[0] || "";
+async function openModelFolder(select) {
+  const selectedName = select.value || "";
+  const candidate = (select.yjCandidates || []).find((item) => item.name === selectedName);
+  const modelType = candidate?.type || select.yjResult?.model_types?.[0] || "";
   try {
     const response = await api.fetchApi("/yj_nodes/model_matcher/open_folder", {
       method: "POST",
@@ -388,24 +425,30 @@ function ensureStyles() {
     .yj-mm-total{margin-left:8px;font-size:13px}
     .yj-mm-table{width:100%;min-width:1050px;border-collapse:separate;border-spacing:0 7px;table-layout:fixed}
     .yj-mm-table th{color:#9696a8;font-size:13px;font-weight:700;text-align:left;padding:8px 12px;position:relative;border-bottom:1px solid #292940}
-    .yj-mm-table td{height:64px;background:#241d27;padding:10px 12px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box}
+    .yj-mm-table td{height:64px;background:#241d27;padding:0 12px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box}
     .yj-mm-table tr td:first-child{border-left:4px solid #a96908;border-radius:7px 0 0 7px}
     .yj-mm-table tr td:last-child{border-radius:0 7px 7px 0}
     .yj-mm-table tr[hidden]{display:none}
     .yj-mm-resizer{position:absolute;right:-2px;top:7px;width:5px;height:25px;cursor:col-resize;background:transparent}
     .yj-mm-resizer:hover{background:#6c6c86}
+    .yj-mm-cell-stack{display:flex;flex-direction:column;min-width:0}
+    .yj-mm-cell-line{display:flex;align-items:center;min-height:64px;min-width:0;padding:8px 0;box-sizing:border-box}
+    .yj-mm-cell-line+.yj-mm-cell-line{border-top:1px solid #3b303d}
     .yj-mm-model-meta{display:flex;align-items:center;gap:12px;min-width:0}
     .yj-mm-folder{flex:0 0 44px;width:44px;height:40px;border:1px solid #403847;border-radius:6px;background:#312a35;font-size:21px;cursor:pointer}
     .yj-mm-folder:hover{border-color:#c07b10;background:#3a3037}
     .yj-mm-meta-copy{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}
     .yj-mm-status{max-width:100%;padding:5px 10px;border:1px solid #7b4c08;border-radius:999px;color:#ff9f0a;background:#35250f;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .yj-mm-node-type{max-width:100%;color:#85818b;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .yj-mm-original{font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+    .yj-mm-original{align-items:flex-start;justify-content:center;flex-direction:column;gap:4px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+    .yj-mm-widget-name{color:#9690a0;font-size:11px;font-weight:600}
+    .yj-mm-original-value{max-width:100%;overflow-wrap:anywhere}
     .yj-mm-select{width:100%;height:42px;background:#0e0e24;color:#f1f1f6;border:1px solid #8a5708;border-radius:6px;padding:8px 12px;font:500 13px/1 "Microsoft YaHei UI","Segoe UI",sans-serif}
     .yj-mm-select:disabled{opacity:.55;cursor:not-allowed}
     .yj-mm-skip-label{display:flex;align-items:center;gap:7px;color:#8e8a94;font-size:12px;white-space:nowrap}
     .yj-mm-skip{width:17px;height:17px;accent-color:#3f82f6}
     .yj-mm-score{color:#ff9f0a;font-size:16px;font-weight:800}
+    .yj-mm-actions{flex-wrap:wrap;align-content:center}
     .yj-mm-footer{display:flex;justify-content:flex-end;gap:12px;padding:16px 30px;border-top:1px solid #292940}
     .yj-mm-button{min-width:100px;border:0;border-radius:7px;padding:11px 20px;color:#fff;font-weight:700;cursor:pointer}
     .yj-mm-cancel{background:#24243a}
@@ -417,7 +460,7 @@ function ensureStyles() {
   document.head.appendChild(style);
 }
 
-function wireDialogBehavior(backdrop, dialog, results) {
+function wireDialogBehavior(backdrop, dialog) {
   dialog.querySelector(".yj-mm-close").onclick = () => backdrop.remove();
   dialog.querySelector(".yj-mm-cancel").onclick = () => backdrop.remove();
 
@@ -473,7 +516,6 @@ function wireDialogBehavior(backdrop, dialog, results) {
   }
 
   dialog.querySelector(".yj-mm-apply").onclick = () => applyModelChanges(dialog, backdrop);
-  wireSearchButtons(dialog, results);
 }
 
 function findNodeById(id) {
@@ -502,17 +544,29 @@ function finishHistoryCheckpoint() {
   app.canvas?.setDirty?.(true, true);
 }
 
-function applyModelChanges(dialog, backdrop) {
+async function refreshMissingModelState() {
+  if (typeof app.refreshMissingModels !== "function") return;
+  try {
+    await app.refreshMissingModels({ silent: true, reloadDefs: false });
+  } catch (error) {
+    console.warn("[ComfyUI-YJNodes] failed to refresh missing-model state", error);
+  }
+}
+
+async function applyModelChanges(dialog, backdrop) {
   const changes = [];
-  for (const row of dialog.querySelectorAll("tbody tr")) {
-    if (row.dataset.canApply !== "true") continue;
-    if (row.querySelector(".yj-mm-skip")?.checked) continue;
-    const nextValue = row.querySelector(".yj-mm-select")?.value;
+  for (const select of dialog.querySelectorAll(".yj-mm-select")) {
+    const result = select.yjResult;
+    if (!result || result.can_apply === false) continue;
+    if (select.yjSkip?.checked) continue;
+    const nextValue = select.value;
     if (!nextValue) continue;
-    const node = findNodeById(row.dataset.nodeId);
-    const widget = node?.widgets?.[Number(row.dataset.widgetIndex)];
-    if (!widget || widget.value === nextValue) continue;
-    changes.push({ node, widgetIndex: Number(row.dataset.widgetIndex), oldValue: widget.value, newValue: nextValue });
+    const node = findNodeById(result.node_id);
+    const widget = node?.widgets?.[Number(result.widget_index)];
+    if (!widget) continue;
+    const widgetValue = resolveWidgetChoice(widget, nextValue);
+    if (widget.value === widgetValue) continue;
+    changes.push({ node, widgetIndex: Number(result.widget_index), oldValue: widget.value, newValue: widgetValue });
   }
 
   saveHistoryCheckpoint();
@@ -524,6 +578,8 @@ function applyModelChanges(dialog, backdrop) {
       }
     }
     finishHistoryCheckpoint();
+    await refreshMissingModelState();
+    app.canvas?.setDirty?.(true, true);
     backdrop.remove();
   } catch (error) {
     console.error("[ComfyUI-YJNodes] apply failed, rolling back", error);
@@ -535,20 +591,10 @@ function applyModelChanges(dialog, backdrop) {
 }
 
 function searchUrl(kind, query) {
-  const encoded = encodeURIComponent(query);
+  const encoded = encodeURIComponent(modelSearchName(query));
   if (kind === "hf") return `https://huggingface.co/search/full-text?q=${encoded}`;
   if (kind === "c") return `https://civitai.com/search/models?sortBy=models_v9&query=${encoded}`;
   return `https://www.google.com/search?q=${encoded}`;
-}
-
-function wireSearchButtons(dialog, results) {
-  const rows = [...dialog.querySelectorAll("tbody tr")];
-  rows.forEach((row, index) => {
-    const query = results[index]?.value || "";
-    row.querySelector(".yj-mm-hf").onclick = () => window.open(searchUrl("hf", query), "_blank", "noopener,noreferrer");
-    row.querySelector(".yj-mm-c").onclick = () => window.open(searchUrl("c", query), "_blank", "noopener,noreferrer");
-    row.querySelector(".yj-mm-g").onclick = () => window.open(searchUrl("g", query), "_blank", "noopener,noreferrer");
-  });
 }
 
 app.registerExtension({

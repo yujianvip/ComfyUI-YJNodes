@@ -11,11 +11,49 @@ const {
   defaultCandidateName,
   extractModelReferencesFromNode,
   getModelTypesForWidget,
+  groupMatcherResults,
   isModelDropdown,
   isModelValueAvailable,
+  modelSearchName,
+  resolveWidgetChoice,
+  shouldDisableCandidateSelect,
 } = coreModule;
 
-test("只默认选择后端确认可自动替换的最高分候选", () => {
+test("外部搜索只使用模型文件名", () => {
+  assert.equal(modelSearchName("checkpoints/SDXL/model.safetensors"), "model.safetensors");
+  assert.equal(modelSearchName("text_encoders\\Qwen\\clip-fp8.safetensors"), "clip-fp8.safetensors");
+  assert.equal(modelSearchName("standalone.gguf"), "standalone.gguf");
+});
+
+test("写回模型时使用下拉框原有的 Windows 路径", () => {
+  const widget = { options: { values: ["Qwen\\clip-fp8.safetensors"] } };
+  assert.equal(
+    resolveWidgetChoice(widget, "Qwen/clip-fp8.safetensors"),
+    "Qwen\\clip-fp8.safetensors",
+  );
+});
+
+test("同一双 CLIP 节点的两个结果合并到一个外框", () => {
+  const groups = groupMatcherResults([
+    { node_id: 1, widget_name: "clip_name1" },
+    { node_id: 1, widget_name: "clip_name2" },
+    { node_id: 2, widget_name: "clip_name1" },
+    { node_id: 3, widget_name: "vae_name" },
+  ]);
+
+  assert.equal(groups.length, 3);
+  assert.deepEqual(groups[0].map((item) => item.widget_name), ["clip_name1", "clip_name2"]);
+  assert.equal(groups[1].length, 1);
+  assert.equal(groups[2].length, 1);
+});
+
+test("勾选不调整后禁用候选下拉框", () => {
+  assert.equal(shouldDisableCandidateSelect(true, false), false);
+  assert.equal(shouldDisableCandidateSelect(true, true), true);
+  assert.equal(shouldDisableCandidateSelect(false, false), true);
+});
+
+test("始终默认选择排序第一的最高分候选", () => {
   assert.equal(
     defaultCandidateName([
       { name: "highest.safetensors", score: 95, auto_select: true },
@@ -25,9 +63,129 @@ test("只默认选择后端确认可自动替换的最高分候选", () => {
   );
   assert.equal(
     defaultCandidateName([{ name: "ambiguous.safetensors", score: 100, auto_select: false }]),
-    "",
+    "ambiguous.safetensors",
   );
   assert.equal(defaultCandidateName([]), "");
+});
+
+test("双 CLIP 加载器的两个模型控件都会被识别", () => {
+  const dualCatalog = buildModelCatalog(
+    [{ type: "text_encoders", name: "installed.safetensors" }],
+    ["text_encoders"],
+  );
+  const node = {
+    id: 31,
+    type: "DualCLIPLoader",
+    widgets: [
+      {
+        name: "clip_name1",
+        type: "converted-widget",
+        value: "missing-clip-l.safetensors",
+        options: { values: () => ["installed.safetensors"] },
+      },
+      {
+        name: "clip_name2",
+        type: "converted-widget",
+        value: "missing-t5.safetensors",
+        options: { values: () => ["installed.safetensors"] },
+      },
+      { name: "type", type: "combo", value: "flux", options: { values: ["flux"] } },
+    ],
+  };
+
+  const references = extractModelReferencesFromNode(node, null, dualCatalog);
+
+  assert.equal(references.length, 2);
+  assert.deepEqual(references.map((item) => item.widget_name), ["clip_name1", "clip_name2"]);
+  assert.deepEqual(references.map((item) => item.model_types), [
+    ["text_encoders"],
+    ["text_encoders"],
+  ]);
+});
+
+test("双 CLIP 加载器兼容新旧 CLIP 模型目录键", () => {
+  const dualCatalog = buildModelCatalog(
+    [
+      { type: "text_encoders", name: "new/installed.safetensors" },
+      { type: "clip", name: "legacy/installed.gguf" },
+    ],
+    ["text_encoders", "clip"],
+  );
+  const node = {
+    id: 32,
+    type: "DualCLIPLoaderGGUF",
+    widgets: [
+      {
+        name: "clip_name1",
+        type: "combo",
+        value: "missing-clip.safetensors",
+        options: { values: ["new/installed.safetensors"] },
+      },
+      {
+        name: "clip_name2",
+        type: "combo",
+        value: "missing-t5.gguf",
+        options: { values: ["legacy/installed.gguf"] },
+      },
+    ],
+  };
+
+  const references = extractModelReferencesFromNode(node, null, dualCatalog);
+
+  assert.equal(references.length, 2);
+  assert.deepEqual(references[0].model_types, ["text_encoders", "clip"]);
+  assert.deepEqual(references[1].model_types, ["text_encoders", "clip"]);
+});
+
+test("双 CLIP 只缺一个模型时仍显示两个替换下拉框", () => {
+  const dualCatalog = buildModelCatalog(
+    [
+      { type: "text_encoders", name: "Qwen\\clip-l.safetensors" },
+      { type: "text_encoders", name: "Qwen\\t5-fp8.safetensors" },
+    ],
+    ["text_encoders"],
+  );
+  const node = {
+    id: 33,
+    type: "DualCLIPLoader",
+    widgets: [
+      {
+        name: "clip_name1",
+        type: "combo",
+        value: "Qwen\\clip-l.safetensors",
+        options: { values: ["Qwen\\clip-l.safetensors", "Qwen\\t5-fp8.safetensors"] },
+      },
+      {
+        name: "clip_name2",
+        type: "combo",
+        value: "missing-t5.safetensors",
+        options: { values: ["Qwen\\clip-l.safetensors", "Qwen\\t5-fp8.safetensors"] },
+      },
+    ],
+  };
+
+  const references = extractModelReferencesFromNode(node, null, dualCatalog);
+
+  assert.deepEqual(references.map((item) => item.widget_name), ["clip_name1", "clip_name2"]);
+  assert.deepEqual(references.map((item) => item.value), [
+    "Qwen\\clip-l.safetensors",
+    "missing-t5.safetensors",
+  ]);
+});
+
+test("CLIP Vision 的 clip_name 不会误归类为文本编码器", () => {
+  const visionCatalog = buildModelCatalog([], ["text_encoders", "clip_vision"]);
+  const widget = {
+    name: "clip_name",
+    type: "combo",
+    value: "missing-vision.safetensors",
+    options: { values: [] },
+  };
+
+  assert.deepEqual(
+    getModelTypesForWidget(widget, visionCatalog, { type: "CLIPVisionLoader" }),
+    ["clip_vision"],
+  );
 });
 
 const catalog = buildModelCatalog([

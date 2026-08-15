@@ -6,3 +6,4 @@ __pycache__/
 .pytest_cache/
 node_modules/
 .source-setget-resolver/
+.research-comfyui-frontend/

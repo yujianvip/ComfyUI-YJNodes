@@ -30,13 +30,14 @@ def discover_model_types(registry) -> list[str]:
 def build_model_entries(model_type: str, names: list[str]) -> list[dict[str, str]]:
     entries: list[dict[str, str]] = []
     for name in names:
-        normalized = str(name).replace("\\", "/")
+        original = str(name)
+        normalized = original.replace("\\", "/")
         extension = PurePosixPath(normalized).suffix.lower()
         entries.append(
             {
                 "type": model_type,
-                "name": normalized,
-                "display_name": f"{model_type}/{normalized}",
+                "name": original,
+                "display_name": f"{model_type}/{original}",
                 "extension": extension,
             }
         )

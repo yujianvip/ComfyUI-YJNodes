@@ -5,28 +5,28 @@ const MODEL_FILE_EXTENSIONS = [
 ];
 
 const WIDGET_NAME_TYPES = new Map([
-  ["ckpt_name", "checkpoints"],
-  ["checkpoint_name", "checkpoints"],
-  ["lora_name", "loras"],
-  ["vae_name", "vae"],
-  ["unet_name", "diffusion_models"],
-  ["diffusion_model_name", "diffusion_models"],
-  ["clip_name", "text_encoders"],
-  ["clip_name1", "text_encoders"],
-  ["clip_name2", "text_encoders"],
-  ["clip_name3", "text_encoders"],
-  ["clip_name4", "text_encoders"],
-  ["text_encoder_name", "text_encoders"],
-  ["clip_vision_name", "clip_vision"],
-  ["control_net_name", "controlnet"],
-  ["controlnet_name", "controlnet"],
-  ["upscale_model", "upscale_models"],
-  ["upscale_model_name", "upscale_models"],
-  ["style_model_name", "style_models"],
-  ["gligen_name", "gligen"],
-  ["photomaker_model_name", "photomaker"],
-  ["hypernetwork_name", "hypernetworks"],
-  ["audio_encoder_name", "audio_encoders"],
+  ["ckpt_name", ["checkpoints"]],
+  ["checkpoint_name", ["checkpoints"]],
+  ["lora_name", ["loras"]],
+  ["vae_name", ["vae"]],
+  ["unet_name", ["diffusion_models", "unet"]],
+  ["diffusion_model_name", ["diffusion_models", "unet"]],
+  ["clip_name", ["text_encoders", "clip"]],
+  ["clip_name1", ["text_encoders", "clip"]],
+  ["clip_name2", ["text_encoders", "clip"]],
+  ["clip_name3", ["text_encoders", "clip"]],
+  ["clip_name4", ["text_encoders", "clip"]],
+  ["text_encoder_name", ["text_encoders", "clip"]],
+  ["clip_vision_name", ["clip_vision"]],
+  ["control_net_name", ["controlnet"]],
+  ["controlnet_name", ["controlnet"]],
+  ["upscale_model", ["upscale_models"]],
+  ["upscale_model_name", ["upscale_models"]],
+  ["style_model_name", ["style_models"]],
+  ["gligen_name", ["gligen"]],
+  ["photomaker_model_name", ["photomaker"]],
+  ["hypernetwork_name", ["hypernetworks"]],
+  ["audio_encoder_name", ["audio_encoders"]],
 ]);
 
 const NODE_TYPE_PATTERNS = [
@@ -91,13 +91,53 @@ export function buildSerializedNodeMap(serializedGraph) {
 
 export function defaultCandidateName(candidates) {
   if (!Array.isArray(candidates) || candidates.length === 0) return "";
-  return candidates[0]?.auto_select === true ? String(candidates[0]?.name || "") : "";
+  return String(candidates[0]?.name || "");
+}
+
+export function shouldDisableCandidateSelect(canApply, skipChecked) {
+  return canApply !== true || skipChecked === true;
+}
+
+export function modelSearchName(value) {
+  const normalized = String(value ?? "").trim().replaceAll("\\", "/");
+  return normalized.split("/").pop() || normalized;
+}
+
+export function groupMatcherResults(results) {
+  const groups = [];
+  const clipGroups = new Map();
+  for (const result of results || []) {
+    const isNumberedClip = /^clip_name\d+$/i.test(String(result?.widget_name || ""));
+    const key = isNumberedClip ? `clip:${result.node_id}` : null;
+    if (key && clipGroups.has(key)) {
+      clipGroups.get(key).push(result);
+      continue;
+    }
+    const group = [result];
+    groups.push(group);
+    if (key) clipGroups.set(key, group);
+  }
+  return groups;
 }
 
 export function getWidgetChoices(widget) {
-  const values = widget?.options?.values;
+  let values = widget?.options?.values;
+  if (typeof values === "function") {
+    try {
+      values = values.call(widget);
+    } catch {
+      return [];
+    }
+  }
   if (!Array.isArray(values)) return [];
   return values.filter((value) => typeof value === "string");
+}
+
+export function resolveWidgetChoice(widget, candidateName) {
+  const normalizedCandidate = normalizeModelName(candidateName);
+  return getWidgetChoices(widget).find(
+    (choice) => normalizeModelName(choice) === normalizedCandidate,
+  ) ?? candidateName;
 }
 
 export function isModelValueAvailable(widget) {
@@ -107,10 +147,12 @@ export function isModelValueAvailable(widget) {
   );
 }
 
-function inferTypesFromWidgetName(widget) {
+function inferTypesFromWidgetName(widget, node) {
   const name = String(widget?.name || "").toLowerCase();
-  const type = WIDGET_NAME_TYPES.get(name);
-  return type ? [type] : [];
+  if (name === "clip_name" && /clip.?vision/i.test(String(node?.type || ""))) {
+    return ["clip_vision"];
+  }
+  return WIDGET_NAME_TYPES.get(name) || [];
 }
 
 function inferTypesFromNodeType(nodeType, catalog) {
@@ -128,9 +170,19 @@ function inferTypesFromNodeType(nodeType, catalog) {
 }
 
 export function classifyModelWidget(widget, node, catalog) {
-  const isDropdown = widget?.type === "combo" || Array.isArray(widget?.options?.values);
+  const widgetTypes = inferTypesFromWidgetName(widget, node).filter((type) =>
+    !catalog?.byType || catalog.byType.size === 0 || catalog.byType.has(type)
+  );
+  const isDropdown = widget?.type === "combo"
+    || Array.isArray(widget?.options?.values)
+    || typeof widget?.options?.values === "function"
+    || widgetTypes.length === 1;
   if (!isDropdown) {
     return { modelTypes: [], conflict: false, evidence: "not_dropdown" };
+  }
+
+  if (widgetTypes.length > 0) {
+    return { modelTypes: widgetTypes, conflict: false, evidence: "widget_name" };
   }
 
   const counts = new Map();
@@ -150,13 +202,6 @@ export function classifyModelWidget(widget, node, catalog) {
       return { modelTypes: winners, conflict: false, evidence: "catalog_overlap" };
     }
     return { modelTypes: [], conflict: true, evidence: "catalog_conflict" };
-  }
-
-  const widgetTypes = inferTypesFromWidgetName(widget).filter((type) =>
-    !catalog?.byType || catalog.byType.size === 0 || catalog.byType.has(type)
-  );
-  if (widgetTypes.length === 1) {
-    return { modelTypes: widgetTypes, conflict: false, evidence: "widget_name" };
   }
 
   const nodeTypes = inferTypesFromNodeType(node?.type, catalog);
@@ -192,11 +237,28 @@ export function extractModelReferencesFromNode(
   const unknown = isUnknownNode(node, serializedNode, registeredNodeTypes);
 
   if (!unknown) {
+    const modelWidgets = [];
     for (let index = 0; index < (node?.widgets || []).length; index += 1) {
       const widget = node.widgets[index];
       const classification = classifyModelWidget(widget, node, catalog);
-      if (classification.modelTypes.length !== 1) continue;
-      if (isModelValueAvailable(widget)) continue;
+      if (classification.modelTypes.length === 0) continue;
+      modelWidgets.push({
+        index,
+        widget,
+        classification,
+        available: isModelValueAvailable(widget),
+      });
+    }
+
+    const numberedClipWidgets = modelWidgets.filter(({ widget }) =>
+      /^clip_name\d+$/i.test(String(widget?.name || ""))
+    );
+    const includeCompleteClipGroup = numberedClipWidgets.length > 1
+      && numberedClipWidgets.some(({ available }) => !available);
+    const groupedClipIndexes = new Set(numberedClipWidgets.map(({ index }) => index));
+
+    for (const { index, widget, classification, available } of modelWidgets) {
+      if (available && !(includeCompleteClipGroup && groupedClipIndexes.has(index))) continue;
       references.push({
         node_id: node.id,
         node_type: node.type,

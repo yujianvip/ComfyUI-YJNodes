@@ -117,6 +117,14 @@ def test_build_model_entries_keeps_type_name_and_display_name():
     ]
 
 
+def test_build_model_entries_preserves_windows_subfolder_separator():
+    entries = build_model_entries("text_encoders", [r"Qwen\clip-fp8.safetensors"])
+
+    assert entries[0]["name"] == r"Qwen\clip-fp8.safetensors"
+    assert entries[0]["display_name"] == r"text_encoders/Qwen\clip-fp8.safetensors"
+    assert entries[0]["extension"] == ".safetensors"
+
+
 def test_filter_models_by_types_limits_candidates_to_dropdown_folder():
     models = [
         {"type": "checkpoints", "name": "shared.safetensors"},
