@@ -1,0 +1,4 @@
+把音效文件放到这个文件夹，然后打开 ComfyUI 设置中的“YJNodes → 工作流完成提示音”，点击“刷新音效列表”后选择音效。
+
+支持的格式：WAV、MP3、OGG、M4A、AAC、FLAC、WEBM。
+实际能否播放取决于当前浏览器或 ComfyUI Desktop 支持的音频编码；兼容性最好的是 WAV 和 MP3。

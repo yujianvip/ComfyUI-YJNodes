@@ -1,0 +1,12 @@
+[project]
+name = "comfyui-yjnodes"
+version = "0.2.0"
+description = "ComfyUI 插件合集：模型匹配、工作流辅助和自定义节点。"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "YJ" }]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
