@@ -6,6 +6,7 @@ import {
   buildSerializedNodeMap,
   defaultCandidateName,
   extractModelReferencesFromNode,
+  filterModelCandidates,
   groupMatcherResults,
   modelSearchName,
   resolveWidgetChoice,
@@ -30,6 +31,8 @@ const I18N = {
     source: "来源",
     original: "原始模型名",
     replacement: "匹配 / 替换",
+    searchCandidate: "搜索模型",
+    noCandidate: "未找到候选模型",
     skip: "不调整",
     score: "匹配度",
     reasons: "原因",
@@ -63,6 +66,8 @@ const I18N = {
     source: "Source",
     original: "Original Model",
     replacement: "Match / Replace",
+    searchCandidate: "Search models",
+    noCandidate: "No matching model",
     skip: "Skip",
     score: "Score",
     reasons: "Reasons",
@@ -215,8 +220,8 @@ function showMatcherDialog(results, selectedCount) {
       <table class="yj-mm-table">
         <thead><tr>
           <th style="width:190px">${lang.status}<span class="yj-mm-resizer"></span></th>
-          <th style="width:250px">${lang.original}<span class="yj-mm-resizer"></span></th>
-          <th style="width:340px">${lang.replacement}<span class="yj-mm-resizer"></span></th>
+          <th style="width:460px">${lang.original}<span class="yj-mm-resizer"></span></th>
+          <th style="width:330px">${lang.replacement}<span class="yj-mm-resizer"></span></th>
           <th style="width:90px">${lang.skip}<span class="yj-mm-resizer"></span></th>
           <th style="width:70px">${lang.score}<span class="yj-mm-resizer"></span></th>
           <th style="width:190px">${lang.actions}</th>
@@ -260,8 +265,14 @@ function showMatcherDialog(results, selectedCount) {
       </td>
       <td><div class="yj-mm-cell-stack">${entries.map(({ id, result }) => `
         <div class="yj-mm-cell-line yj-mm-original" data-entry="${id}" title="${escapeHtml(result.value)}">
-          <span class="yj-mm-widget-name">${escapeHtml(result.widget_name || "")}</span>
-          <span class="yj-mm-original-value">${escapeHtml(result.value)}</span>
+          <span class="yj-mm-original-copy">
+            <span class="yj-mm-widget-name">${escapeHtml(result.widget_name || "")}</span>
+            <span class="yj-mm-original-value">${escapeHtml(result.value)}</span>
+          </span>
+          <label class="yj-mm-search-wrap" title="${lang.searchCandidate}">
+            <span class="yj-mm-search-icon">⌕</span>
+            <input class="yj-mm-candidate-search" data-entry="${id}" type="search" placeholder="${lang.searchCandidate}" aria-label="${lang.searchCandidate}">
+          </label>
         </div>`).join("")}</div></td>
       <td><div class="yj-mm-cell-stack">${entries.map(({ id, applyable, options }) => `
         <div class="yj-mm-cell-line"><select class="yj-mm-select" data-entry="${id}" ${applyable ? "" : "disabled"}>${options || '<option value=""></option>'}</select></div>`).join("")}</div></td>
@@ -324,9 +335,9 @@ function updateGroupedRowStatuses(row) {
 }
 
 function updateEntryCandidate(dialog, row, select) {
-  const selectedName = select.value;
+  const selectedName = select.value || select.yjSelectedName || "";
   const candidates = select.yjCandidates || [];
-  const candidate = candidates.find((item) => item.name === selectedName) || candidates[0];
+  const candidate = candidates.find((item) => item.name === selectedName);
   const status = statusForCandidate(candidate);
   const entryId = select.dataset.entry;
   const statusElement = row.querySelector(`.yj-mm-entry-status[data-entry="${entryId}"]`);
@@ -342,18 +353,61 @@ function updateEntryCandidate(dialog, row, select) {
   applyActiveFilter(dialog);
 }
 
+function replaceCandidateOptions(select, candidates) {
+  const previousSelection = select.yjSelectedName || select.value || "";
+  select.replaceChildren();
+  if (candidates.length === 0) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = t().noCandidate;
+    option.disabled = true;
+    option.selected = true;
+    select.appendChild(option);
+    select.yjHasVisibleCandidates = false;
+    select.disabled = true;
+    return;
+  }
+
+  for (const candidate of candidates) {
+    const option = document.createElement("option");
+    option.value = candidate.name;
+    option.textContent = candidate.name;
+    select.appendChild(option);
+  }
+  const selectedName = candidates.some((candidate) => candidate.name === previousSelection)
+    ? previousSelection
+    : candidates[0].name;
+  select.value = selectedName;
+  select.yjSelectedName = selectedName;
+  select.yjHasVisibleCandidates = true;
+  select.disabled = shouldDisableCandidateSelect(select.yjCanApply, select.yjSkip?.checked);
+}
+
 function wireResultEntry(dialog, row, entry) {
   const selector = `[data-entry="${entry.id}"]`;
   const select = row.querySelector(`.yj-mm-select${selector}`);
   const skipCheckbox = row.querySelector(`.yj-mm-skip${selector}`);
+  const searchInput = row.querySelector(`.yj-mm-candidate-search${selector}`);
   const folderButton = row.querySelector(`.yj-mm-folder${selector}`);
   const actions = row.querySelector(`.yj-mm-actions${selector}`);
   select.yjCandidates = entry.candidates;
   select.yjResult = entry.result;
   select.yjSkip = skipCheckbox;
-  select.addEventListener("change", () => updateEntryCandidate(dialog, row, select));
+  select.yjCanApply = entry.applyable;
+  select.yjSelectedName = select.value;
+  select.yjHasVisibleCandidates = entry.candidates.length > 0;
+  if (!select.yjHasVisibleCandidates) replaceCandidateOptions(select, []);
+  select.addEventListener("change", () => {
+    select.yjSelectedName = select.value;
+    updateEntryCandidate(dialog, row, select);
+  });
+  searchInput.addEventListener("input", () => {
+    replaceCandidateOptions(select, filterModelCandidates(entry.candidates, searchInput.value));
+    updateEntryCandidate(dialog, row, select);
+  });
   skipCheckbox.addEventListener("change", () => {
-    select.disabled = shouldDisableCandidateSelect(entry.applyable, skipCheckbox.checked);
+    select.disabled = !select.yjHasVisibleCandidates
+      || shouldDisableCandidateSelect(entry.applyable, skipCheckbox.checked);
   });
   folderButton.addEventListener("click", () => openModelFolder(select));
   const query = entry.result.value || "";
@@ -383,7 +437,7 @@ function applyActiveFilter(dialog) {
 }
 
 async function openModelFolder(select) {
-  const selectedName = select.value || "";
+  const selectedName = select.value || select.yjSelectedName || "";
   const candidate = (select.yjCandidates || []).find((item) => item.name === selectedName);
   const modelType = candidate?.type || select.yjResult?.model_types?.[0] || "";
   try {
@@ -411,7 +465,7 @@ function ensureStyles() {
     .yj-mm-loading{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:12px;padding:18px 22px;background:#111124;color:#f2f1fb;border:1px solid #303047;border-radius:8px;box-shadow:0 18px 60px rgba(0,0,0,.45);font-family:Microsoft YaHei,system-ui,sans-serif}
     .yj-mm-spinner{width:18px;height:18px;border:2px solid #55556f;border-top-color:#3f82f6;border-radius:50%;animation:yj-mm-spin .8s linear infinite}
     @keyframes yj-mm-spin{to{transform:rotate(360deg)}}
-    .yj-mm-dialog{position:relative;width:min(1450px,calc(100vw - 48px));max-height:88vh;background:#101022;color:#f2f1fb;border:1px solid #2d2d46;border-radius:8px;box-shadow:0 24px 80px rgba(0,0,0,.55);overflow:hidden;font-family:"Microsoft YaHei UI","Segoe UI",sans-serif;letter-spacing:0}
+    .yj-mm-dialog{position:relative;width:min(1720px,calc(100vw - 32px));max-height:88vh;background:#101022;color:#f2f1fb;border:1px solid #2d2d46;border-radius:8px;box-shadow:0 24px 80px rgba(0,0,0,.55);overflow:hidden;font-family:"Microsoft YaHei UI","Segoe UI",sans-serif;letter-spacing:0}
     .yj-mm-title{display:flex;align-items:center;justify-content:space-between;padding:24px 30px 20px;border-bottom:1px solid #292940;cursor:move;user-select:none}
     .yj-mm-title strong{font-size:22px;line-height:1.2;letter-spacing:0}
     .yj-mm-scope{margin-top:7px;color:#85859a;font-size:12px}
@@ -423,7 +477,7 @@ function ensureStyles() {
     .yj-mm-filter:hover{border-color:#6b5a30;color:#fff}
     .yj-mm-filter.is-active{border-color:#a96506;background:#302512;color:#ffad23}
     .yj-mm-total{margin-left:8px;font-size:13px}
-    .yj-mm-table{width:100%;min-width:1050px;border-collapse:separate;border-spacing:0 7px;table-layout:fixed}
+    .yj-mm-table{width:100%;min-width:1280px;border-collapse:separate;border-spacing:0 7px;table-layout:fixed}
     .yj-mm-table th{color:#9696a8;font-size:13px;font-weight:700;text-align:left;padding:8px 12px;position:relative;border-bottom:1px solid #292940}
     .yj-mm-table td{height:64px;background:#241d27;padding:0 12px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box}
     .yj-mm-table tr td:first-child{border-left:4px solid #a96908;border-radius:7px 0 0 7px}
@@ -440,11 +494,17 @@ function ensureStyles() {
     .yj-mm-meta-copy{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}
     .yj-mm-status{max-width:100%;padding:5px 10px;border:1px solid #7b4c08;border-radius:999px;color:#ff9f0a;background:#35250f;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .yj-mm-node-type{max-width:100%;color:#85818b;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .yj-mm-original{align-items:flex-start;justify-content:center;flex-direction:column;gap:4px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+    .yj-mm-original{justify-content:space-between;gap:10px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+    .yj-mm-original-copy{display:flex;flex:1 1 auto;flex-direction:column;gap:4px;min-width:0}
     .yj-mm-widget-name{color:#9690a0;font-size:11px;font-weight:600}
     .yj-mm-original-value{max-width:100%;overflow-wrap:anywhere}
     .yj-mm-select{width:100%;height:42px;background:#0e0e24;color:#f1f1f6;border:1px solid #8a5708;border-radius:6px;padding:8px 12px;font:500 13px/1 "Microsoft YaHei UI","Segoe UI",sans-serif}
     .yj-mm-select:disabled{opacity:.55;cursor:not-allowed}
+    .yj-mm-search-wrap{display:flex;align-items:center;flex:0 0 170px;height:42px;border:1px solid #42425c;border-radius:6px;background:#17172d;color:#88889d;box-sizing:border-box;transition:border-color .16s,box-shadow .16s}
+    .yj-mm-search-wrap:focus-within{border-color:#3f82f6;box-shadow:0 0 0 2px rgba(63,130,246,.18)}
+    .yj-mm-search-icon{flex:0 0 30px;text-align:center;font-size:18px;line-height:1}
+    .yj-mm-candidate-search{width:100%;min-width:0;height:100%;padding:0 9px 0 0;border:0;outline:0;background:transparent;color:#f1f1f6;font:500 12px/1 "Microsoft YaHei UI","Segoe UI",sans-serif}
+    .yj-mm-candidate-search::placeholder{color:#747489}
     .yj-mm-skip-label{display:flex;align-items:center;gap:7px;color:#8e8a94;font-size:12px;white-space:nowrap}
     .yj-mm-skip{width:17px;height:17px;accent-color:#3f82f6}
     .yj-mm-score{color:#ff9f0a;font-size:16px;font-weight:800}
@@ -559,7 +619,7 @@ async function applyModelChanges(dialog, backdrop) {
     const result = select.yjResult;
     if (!result || result.can_apply === false) continue;
     if (select.yjSkip?.checked) continue;
-    const nextValue = select.value;
+    const nextValue = select.value || select.yjSelectedName;
     if (!nextValue) continue;
     const node = findNodeById(result.node_id);
     const widget = node?.widgets?.[Number(result.widget_index)];

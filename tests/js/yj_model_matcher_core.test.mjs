@@ -10,6 +10,7 @@ const {
   classifyModelWidget,
   defaultCandidateName,
   extractModelReferencesFromNode,
+  filterModelCandidates,
   getModelTypesForWidget,
   groupMatcherResults,
   isModelDropdown,
@@ -45,6 +46,21 @@ test("同一双 CLIP 节点的两个结果合并到一个外框", () => {
   assert.deepEqual(groups[0].map((item) => item.widget_name), ["clip_name1", "clip_name2"]);
   assert.equal(groups[1].length, 1);
   assert.equal(groups[2].length, 1);
+});
+
+test("候选搜索按模型路径过滤且忽略大小写", () => {
+  const candidates = [
+    { name: "Qwen\\CLIP-L.safetensors" },
+    { name: "T5\\t5xxl-fp8.safetensors" },
+    { name: "T5\\t5xxl-fp16.safetensors" },
+  ];
+
+  assert.deepEqual(
+    filterModelCandidates(candidates, "FP8").map((item) => item.name),
+    ["T5\\t5xxl-fp8.safetensors"],
+  );
+  assert.equal(filterModelCandidates(candidates, "").length, 3);
+  assert.equal(filterModelCandidates(candidates, "not-found").length, 0);
 });
 
 test("勾选不调整后禁用候选下拉框", () => {

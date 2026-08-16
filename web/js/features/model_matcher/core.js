@@ -120,6 +120,14 @@ export function groupMatcherResults(results) {
   return groups;
 }
 
+export function filterModelCandidates(candidates, query) {
+  const normalizedQuery = String(query ?? "").trim().toLocaleLowerCase();
+  if (!normalizedQuery) return [...(candidates || [])];
+  return (candidates || []).filter((candidate) =>
+    String(candidate?.name || "").toLocaleLowerCase().includes(normalizedQuery)
+  );
+}
+
 export function getWidgetChoices(widget) {
   let values = widget?.options?.values;
   if (typeof values === "function") {
