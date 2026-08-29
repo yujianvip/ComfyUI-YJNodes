@@ -1,6 +1,6 @@
 [project]
 name = "comfyui-yjnodes"
-version = "0.2.1"
+version = "0.2.2"
 description = "ComfyUI 插件合集：模型匹配、工作流辅助和自定义节点。"
 readme = "README.md"
 requires-python = ">=3.10"
