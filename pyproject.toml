@@ -12,7 +12,7 @@ Repository = "https://github.com/yujianvip/ComfyUI-YJNodes"
 
 [tool.comfy]
 PublisherId = "yujianvip"
-DisplayName = "YJ Nodes"
+DisplayName = "ComfyUI-YJNodes"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
