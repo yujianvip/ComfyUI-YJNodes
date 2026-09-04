@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from .features.execution_sound.routes import register_execution_sound_routes
 from .features.model_matcher.routes import register_model_matcher_routes
+from .features.pause.routes import register_pause_routes
 
 _ROUTES_REGISTERED_ATTRIBUTE = "_comfyui_yjnodes_routes_registered"
 
@@ -23,4 +24,5 @@ def register_routes() -> None:
         return
     register_model_matcher_routes(routes)
     register_execution_sound_routes(routes)
+    register_pause_routes(routes)
     setattr(routes, _ROUTES_REGISTERED_ATTRIBUTE, True)

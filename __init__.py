@@ -18,6 +18,20 @@ if __package__:
         traceback.print_exc()
 
     try:
+        from .yj_nodes.nodes.pause import (
+            NODE_CLASS_MAPPINGS as PAUSE_NODE_CLASS_MAPPINGS,
+            NODE_DISPLAY_NAME_MAPPINGS as PAUSE_NODE_DISPLAY_NAME_MAPPINGS,
+        )
+
+        NODE_CLASS_MAPPINGS.update(PAUSE_NODE_CLASS_MAPPINGS)
+        NODE_DISPLAY_NAME_MAPPINGS.update(PAUSE_NODE_DISPLAY_NAME_MAPPINGS)
+    except Exception as exc:
+        import traceback
+
+        print(f"[ComfyUI-YJNodes] Failed to register YJpause node: {exc}")
+        traceback.print_exc()
+
+    try:
         from .yj_nodes.routes import register_routes
 
         register_routes()

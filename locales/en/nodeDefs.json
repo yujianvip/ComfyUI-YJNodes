@@ -1,0 +1,27 @@
+{
+  "YJpause": {
+    "display_name": "YJpause",
+    "description": "Pauses the current workflow at this point when enabled. Continue resumes from the current state; Restart stops and queues the workflow again; Stop ends only the current job.",
+    "inputs": {
+      "value": {
+        "name": "Value",
+        "tooltip": "Connect any data line that should pass through this breakpoint."
+      },
+      "enabled": {
+        "name": "Pause enabled",
+        "tooltip": "When enabled, pause every time execution reaches this node. When disabled, pass the value through directly."
+      },
+      "timeout_minutes": {
+        "name": "Auto-stop timeout (minutes)",
+        "tooltip": "Automatically stop the current job after this many paused minutes. Set to 0 to wait indefinitely."
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Value",
+        "tooltip": "The original input value, unchanged."
+      }
+    }
+  }
+}
+

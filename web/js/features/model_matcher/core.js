@@ -94,6 +94,10 @@ export function defaultCandidateName(candidates) {
   return String(candidates[0]?.name || "");
 }
 
+export function shouldSkipCandidateByDefault(candidates) {
+  return Number(candidates?.[0]?.score) === 100;
+}
+
 export function shouldDisableCandidateSelect(canApply, skipChecked) {
   return canApply !== true || skipChecked === true;
 }

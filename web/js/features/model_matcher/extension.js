@@ -2,6 +2,17 @@ import { app } from "../../../../../scripts/app.js";
 import { api } from "../../../../../scripts/api.js";
 import { registerYJCanvasMenuItem } from "../../shared/canvas_menu.js";
 import {
+  beginGraphChange,
+  endGraphChange,
+  findNodeById,
+  getActiveGraph,
+  getGraphNodes,
+  getRootGraph,
+  getSelectedNodes,
+  markGraphDirty,
+} from "../../shared/comfy_compat.js";
+import { getCurrentLanguage } from "../../shared/i18n.js";
+import {
   buildModelCatalog,
   buildSerializedNodeMap,
   defaultCandidateName,
@@ -10,6 +21,7 @@ import {
   groupMatcherResults,
   modelSearchName,
   resolveWidgetChoice,
+  shouldSkipCandidateByDefault,
   shouldDisableCandidateSelect,
 } from "./core.js";
 
@@ -87,31 +99,25 @@ const I18N = {
 };
 
 function getLang() {
-  const settings = app?.ui?.settings;
-  const setting =
-    settings?.getSettingValue?.("Comfy.Locale") ||
-    settings?.getSettingValue?.("Comfy.Locale.Language") ||
-    settings?.getSettingValue?.("locale");
-  if (!setting) return "zh";
-  return String(setting).toLowerCase().startsWith("zh") ? "zh" : "en";
+  return getCurrentLanguage(app);
 }
 
 function t() {
-  return I18N[getLang()] || I18N.zh;
+  return I18N[getLang()] || I18N.en;
 }
 
 function selectedNodes() {
-  return Object.values(app.canvas?.selected_nodes || {});
+  return getSelectedNodes(app);
 }
 
 function getTargetNodes() {
   const selected = selectedNodes();
-  return selected.length > 0 ? selected : app.graph?._nodes || [];
+  return selected.length > 0 ? selected : getGraphNodes(app, getRootGraph(app));
 }
 
 function scanModelReferences(modelCatalog) {
   const targetNodes = getTargetNodes();
-  const serializedNodeMap = buildSerializedNodeMap(app.graph?.serialize?.());
+  const serializedNodeMap = buildSerializedNodeMap(getRootGraph(app)?.serialize?.());
   const registeredNodeTypes = globalThis.LiteGraph?.registered_node_types || null;
   const references = [];
   for (const node of targetNodes) {
@@ -235,6 +241,7 @@ function showMatcherDialog(results, selectedCount) {
     </div>
   `;
 
+  backdrop.appendChild(dialog);
   const tbody = dialog.querySelector("tbody");
   let entryIndex = 0;
   for (const group of groupMatcherResults(results)) {
@@ -246,11 +253,12 @@ function showMatcherDialog(results, selectedCount) {
       const status = statusForResult(result);
       const defaultName = defaultCandidateName(candidates);
       const applyable = result.can_apply !== false;
+      const skipByDefault = shouldSkipCandidateByDefault(candidates);
       const options = candidates.map((candidate) => {
         const selected = candidate.name === defaultName ? "selected" : "";
         return `<option value="${escapeHtml(candidate.name)}" ${selected}>${escapeHtml(candidate.name)}</option>`;
       }).join("");
-      return { id, result, candidates, best, status, applyable, options };
+      return { id, result, candidates, best, status, applyable, skipByDefault, options };
     });
     row.innerHTML = `
       <td>
@@ -269,15 +277,18 @@ function showMatcherDialog(results, selectedCount) {
             <span class="yj-mm-widget-name">${escapeHtml(result.widget_name || "")}</span>
             <span class="yj-mm-original-value">${escapeHtml(result.value)}</span>
           </span>
-          <label class="yj-mm-search-wrap" title="${lang.searchCandidate}">
-            <span class="yj-mm-search-icon">⌕</span>
-            <input class="yj-mm-candidate-search" data-entry="${id}" type="search" placeholder="${lang.searchCandidate}" aria-label="${lang.searchCandidate}">
-          </label>
         </div>`).join("")}</div></td>
       <td><div class="yj-mm-cell-stack">${entries.map(({ id, applyable, options }) => `
-        <div class="yj-mm-cell-line"><select class="yj-mm-select" data-entry="${id}" ${applyable ? "" : "disabled"}>${options || '<option value=""></option>'}</select></div>`).join("")}</div></td>
-      <td><div class="yj-mm-cell-stack">${entries.map(({ id, applyable }) => `
-        <div class="yj-mm-cell-line"><label class="yj-mm-skip-label"><input class="yj-mm-skip" data-entry="${id}" type="checkbox" ${applyable ? "" : "checked disabled"}><span>${lang.skip}</span></label></div>`).join("")}</div></td>
+        <div class="yj-mm-cell-line">
+          <div class="yj-mm-combobox" data-entry="${id}">
+            <button class="yj-mm-combo-trigger" type="button" role="combobox" aria-haspopup="listbox" aria-expanded="false" ${applyable ? "" : "disabled"}>
+              <span class="yj-mm-combo-value"></span><span class="yj-mm-combo-chevron">▾</span>
+            </button>
+            <select class="yj-mm-select" data-entry="${id}" tabindex="-1" aria-hidden="true" ${applyable ? "" : "disabled"}>${options || '<option value=""></option>'}</select>
+          </div>
+        </div>`).join("")}</div></td>
+      <td><div class="yj-mm-cell-stack">${entries.map(({ id, applyable, skipByDefault }) => `
+        <div class="yj-mm-cell-line"><label class="yj-mm-skip-label"><input class="yj-mm-skip" data-entry="${id}" type="checkbox" ${skipByDefault ? "checked" : ""} ${applyable ? "" : "disabled"}><span>${lang.skip}</span></label></div>`).join("")}</div></td>
       <td><div class="yj-mm-cell-stack">${entries.map(({ id, best }) => `
         <div class="yj-mm-cell-line yj-mm-score" data-entry="${id}">${best ? `${best.score}%` : ""}</div>`).join("")}</div></td>
       <td>
@@ -294,7 +305,6 @@ function showMatcherDialog(results, selectedCount) {
     tbody.appendChild(row);
   }
 
-  backdrop.appendChild(dialog);
   document.body.appendChild(backdrop);
   refreshStats(dialog);
   wireDialogBehavior(backdrop, dialog);
@@ -353,41 +363,136 @@ function updateEntryCandidate(dialog, row, select) {
   applyActiveFilter(dialog);
 }
 
-function replaceCandidateOptions(select, candidates) {
-  const previousSelection = select.yjSelectedName || select.value || "";
-  select.replaceChildren();
+function closeCandidatePanel(select) {
+  if (!select?.yjPanel) return;
+  select.yjPanel.hidden = true;
+  select.yjTrigger?.setAttribute("aria-expanded", "false");
+}
+
+function closeCandidatePanels(backdrop, exceptSelect = null) {
+  for (const panel of backdrop.querySelectorAll(".yj-mm-combo-panel:not([hidden])")) {
+    if (panel.yjSelect !== exceptSelect) closeCandidatePanel(panel.yjSelect);
+  }
+}
+
+function positionCandidatePanel(trigger, panel) {
+  const rect = trigger.getBoundingClientRect();
+  const width = Math.min(Math.max(rect.width, 360), window.innerWidth - 16);
+  panel.style.width = `${width}px`;
+  panel.style.left = `${Math.min(window.innerWidth - width - 8, Math.max(8, rect.left))}px`;
+  const panelHeight = panel.offsetHeight;
+  const below = window.innerHeight - rect.bottom - 8;
+  panel.style.top = below >= panelHeight
+    ? `${rect.bottom + 4}px`
+    : `${Math.max(8, rect.top - panelHeight - 4)}px`;
+}
+
+function syncComboTrigger(select) {
+  const selectedName = select.yjSelectedName || select.value || "";
+  const valueElement = select.yjTrigger?.querySelector(".yj-mm-combo-value");
+  if (valueElement) valueElement.textContent = selectedName || t().noCandidate;
+  if (!select.yjTrigger) return;
+  select.yjTrigger.title = selectedName;
+  select.yjTrigger.disabled = select.disabled;
+}
+
+function renderComboOptions(dialog, row, select, candidates) {
+  const optionsContainer = select.yjPanel.querySelector(".yj-mm-combo-options");
+  optionsContainer.replaceChildren();
   if (candidates.length === 0) {
-    const option = document.createElement("option");
-    option.value = "";
-    option.textContent = t().noCandidate;
-    option.disabled = true;
-    option.selected = true;
-    select.appendChild(option);
-    select.yjHasVisibleCandidates = false;
-    select.disabled = true;
+    const empty = document.createElement("div");
+    empty.className = "yj-mm-combo-empty";
+    empty.textContent = t().noCandidate;
+    optionsContainer.appendChild(empty);
     return;
   }
 
   for (const candidate of candidates) {
-    const option = document.createElement("option");
-    option.value = candidate.name;
+    const option = document.createElement("button");
+    option.type = "button";
+    option.className = "yj-mm-combo-option";
+    option.setAttribute("role", "option");
     option.textContent = candidate.name;
-    select.appendChild(option);
+    const selected = candidate.name === select.yjSelectedName;
+    option.classList.toggle("is-selected", selected);
+    option.setAttribute("aria-selected", String(selected));
+    option.addEventListener("click", () => {
+      select.value = candidate.name;
+      select.yjSelectedName = candidate.name;
+      syncComboTrigger(select);
+      updateEntryCandidate(dialog, row, select);
+      closeCandidatePanel(select);
+      select.yjTrigger.focus();
+    });
+    optionsContainer.appendChild(option);
   }
-  const selectedName = candidates.some((candidate) => candidate.name === previousSelection)
-    ? previousSelection
-    : candidates[0].name;
-  select.value = selectedName;
-  select.yjSelectedName = selectedName;
-  select.yjHasVisibleCandidates = true;
-  select.disabled = shouldDisableCandidateSelect(select.yjCanApply, select.yjSkip?.checked);
+}
+
+function createSearchableCombo(dialog, row, entry, select) {
+  const backdrop = dialog.closest(".yj-mm-backdrop");
+  const trigger = row.querySelector(`.yj-mm-combobox[data-entry="${entry.id}"] .yj-mm-combo-trigger`);
+  const panel = document.createElement("div");
+  panel.className = "yj-mm-combo-panel";
+  panel.id = `yj-mm-combo-panel-${entry.id}`;
+  panel.hidden = true;
+  panel.innerHTML = `
+    <label class="yj-mm-search-wrap" title="${t().searchCandidate}">
+      <span class="yj-mm-search-icon">⌕</span>
+      <input class="yj-mm-candidate-search" type="search" placeholder="${t().searchCandidate}" aria-label="${t().searchCandidate}">
+    </label>
+    <div class="yj-mm-combo-options" role="listbox"></div>
+  `;
+  backdrop.appendChild(panel);
+  panel.yjSelect = select;
+  select.yjPanel = panel;
+  select.yjTrigger = trigger;
+  trigger.setAttribute("aria-controls", panel.id);
+  const searchInput = panel.querySelector(".yj-mm-candidate-search");
+
+  renderComboOptions(dialog, row, select, entry.candidates);
+  syncComboTrigger(select);
+  searchInput.addEventListener("input", () => {
+    renderComboOptions(
+      dialog,
+      row,
+      select,
+      filterModelCandidates(entry.candidates, searchInput.value),
+    );
+    positionCandidatePanel(trigger, panel);
+  });
+  searchInput.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeCandidatePanel(select);
+      trigger.focus();
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      panel.querySelector(".yj-mm-combo-option")?.focus();
+    }
+  });
+  trigger.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowDown") return;
+    event.preventDefault();
+    if (panel.hidden) trigger.click();
+  });
+  trigger.addEventListener("click", () => {
+    if (!panel.hidden) {
+      closeCandidatePanel(select);
+      return;
+    }
+    closeCandidatePanels(backdrop, select);
+    panel.hidden = false;
+    searchInput.value = "";
+    renderComboOptions(dialog, row, select, entry.candidates);
+    positionCandidatePanel(trigger, panel);
+    trigger.setAttribute("aria-expanded", "true");
+    searchInput.focus();
+  });
 }
 
 function wireResultEntry(dialog, row, entry) {
   const selector = `[data-entry="${entry.id}"]`;
   const select = row.querySelector(`.yj-mm-select${selector}`);
   const skipCheckbox = row.querySelector(`.yj-mm-skip${selector}`);
-  const searchInput = row.querySelector(`.yj-mm-candidate-search${selector}`);
   const folderButton = row.querySelector(`.yj-mm-folder${selector}`);
   const actions = row.querySelector(`.yj-mm-actions${selector}`);
   select.yjCandidates = entry.candidates;
@@ -396,18 +501,14 @@ function wireResultEntry(dialog, row, entry) {
   select.yjCanApply = entry.applyable;
   select.yjSelectedName = select.value;
   select.yjHasVisibleCandidates = entry.candidates.length > 0;
-  if (!select.yjHasVisibleCandidates) replaceCandidateOptions(select, []);
-  select.addEventListener("change", () => {
-    select.yjSelectedName = select.value;
-    updateEntryCandidate(dialog, row, select);
-  });
-  searchInput.addEventListener("input", () => {
-    replaceCandidateOptions(select, filterModelCandidates(entry.candidates, searchInput.value));
-    updateEntryCandidate(dialog, row, select);
-  });
+  select.disabled = !select.yjHasVisibleCandidates
+    || shouldDisableCandidateSelect(entry.applyable, skipCheckbox.checked);
+  createSearchableCombo(dialog, row, entry, select);
   skipCheckbox.addEventListener("change", () => {
     select.disabled = !select.yjHasVisibleCandidates
       || shouldDisableCandidateSelect(entry.applyable, skipCheckbox.checked);
+    syncComboTrigger(select);
+    if (select.disabled) closeCandidatePanel(select);
   });
   folderButton.addEventListener("click", () => openModelFolder(select));
   const query = entry.result.value || "";
@@ -494,13 +595,27 @@ function ensureStyles() {
     .yj-mm-meta-copy{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}
     .yj-mm-status{max-width:100%;padding:5px 10px;border:1px solid #7b4c08;border-radius:999px;color:#ff9f0a;background:#35250f;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .yj-mm-node-type{max-width:100%;color:#85818b;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .yj-mm-original{justify-content:space-between;gap:10px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+    .yj-mm-original{font-weight:700;line-height:1.35;overflow-wrap:anywhere}
     .yj-mm-original-copy{display:flex;flex:1 1 auto;flex-direction:column;gap:4px;min-width:0}
     .yj-mm-widget-name{color:#9690a0;font-size:11px;font-weight:600}
     .yj-mm-original-value{max-width:100%;overflow-wrap:anywhere}
-    .yj-mm-select{width:100%;height:42px;background:#0e0e24;color:#f1f1f6;border:1px solid #8a5708;border-radius:6px;padding:8px 12px;font:500 13px/1 "Microsoft YaHei UI","Segoe UI",sans-serif}
-    .yj-mm-select:disabled{opacity:.55;cursor:not-allowed}
-    .yj-mm-search-wrap{display:flex;align-items:center;flex:0 0 170px;height:42px;border:1px solid #42425c;border-radius:6px;background:#17172d;color:#88889d;box-sizing:border-box;transition:border-color .16s,box-shadow .16s}
+    .yj-mm-select{display:none}
+    .yj-mm-combobox{width:100%;min-width:0}
+    .yj-mm-combo-trigger{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;height:42px;padding:0 12px;border:1px solid #8a5708;border-radius:6px;background:#0e0e24;color:#f1f1f6;font:500 13px/1 "Microsoft YaHei UI","Segoe UI",sans-serif;text-align:left;cursor:pointer}
+    .yj-mm-combo-trigger:hover:not(:disabled),.yj-mm-combo-trigger[aria-expanded="true"]{border-color:#c17a0d}
+    .yj-mm-combo-trigger:focus-visible{outline:2px solid #3f82f6;outline-offset:2px}
+    .yj-mm-combo-trigger:disabled{opacity:.55;cursor:not-allowed}
+    .yj-mm-combo-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .yj-mm-combo-chevron{flex:0 0 auto;color:#9292a7;font-size:14px}
+    .yj-mm-combo-panel{position:fixed;z-index:10001;padding:8px;border:1px solid #48485f;border-radius:7px;background:#111126;box-shadow:0 16px 48px rgba(0,0,0,.58)}
+    .yj-mm-combo-panel[hidden]{display:none!important}
+    .yj-mm-combo-options{max-height:324px;margin-top:7px;overflow:auto}
+    .yj-mm-combo-option{display:flex;align-items:center;width:100%;min-height:54px;padding:8px 12px;border:0;border-top:1px solid #292941;background:#18182e;color:#ececf4;font:500 13px/1.35 "Microsoft YaHei UI","Segoe UI",sans-serif;text-align:left;overflow-wrap:anywhere;cursor:pointer}
+    .yj-mm-combo-option:first-child{border-top:0;border-radius:5px 5px 0 0}
+    .yj-mm-combo-option:last-child{border-radius:0 0 5px 5px}
+    .yj-mm-combo-option:hover,.yj-mm-combo-option.is-selected{background:#302817;color:#ffb13b}
+    .yj-mm-combo-empty{display:flex;align-items:center;justify-content:center;min-height:54px;color:#85859a;font-size:12px}
+    .yj-mm-search-wrap{display:flex;align-items:center;width:100%;height:40px;border:1px solid #42425c;border-radius:6px;background:#17172d;color:#88889d;box-sizing:border-box;transition:border-color .16s,box-shadow .16s}
     .yj-mm-search-wrap:focus-within{border-color:#3f82f6;box-shadow:0 0 0 2px rgba(63,130,246,.18)}
     .yj-mm-search-icon{flex:0 0 30px;text-align:center;font-size:18px;line-height:1}
     .yj-mm-candidate-search{width:100%;min-width:0;height:100%;padding:0 9px 0 0;border:0;outline:0;background:transparent;color:#f1f1f6;font:500 12px/1 "Microsoft YaHei UI","Segoe UI",sans-serif}
@@ -523,10 +638,18 @@ function ensureStyles() {
 function wireDialogBehavior(backdrop, dialog) {
   dialog.querySelector(".yj-mm-close").onclick = () => backdrop.remove();
   dialog.querySelector(".yj-mm-cancel").onclick = () => backdrop.remove();
+  backdrop.addEventListener("pointerdown", (event) => {
+    if (event.target.closest(".yj-mm-combo-trigger,.yj-mm-combo-panel")) return;
+    closeCandidatePanels(backdrop);
+  });
+  dialog.querySelector(".yj-mm-body").addEventListener("scroll", () => {
+    closeCandidatePanels(backdrop);
+  });
 
   const title = dialog.querySelector(".yj-mm-title");
   title.addEventListener("pointerdown", (event) => {
     if (event.target.closest("button")) return;
+    closeCandidatePanels(backdrop);
     const rect = dialog.getBoundingClientRect();
     const offsetX = event.clientX - rect.left;
     const offsetY = event.clientY - rect.top;
@@ -578,30 +701,21 @@ function wireDialogBehavior(backdrop, dialog) {
   dialog.querySelector(".yj-mm-apply").onclick = () => applyModelChanges(dialog, backdrop);
 }
 
-function findNodeById(id) {
-  return app.graph?.getNodeById
-    ? app.graph.getNodeById(Number(id))
-    : (app.graph?._nodes || []).find((node) => Number(node.id) === Number(id));
-}
-
 function applyWidgetValue(node, widgetIndex, value) {
   const widget = node?.widgets?.[Number(widgetIndex)];
   if (!widget) return false;
   widget.value = value;
   widget.callback?.(value, app.canvas, node, app.canvas?.graph_mouse);
-  node.setDirtyCanvas?.(true, true);
+  markGraphDirty(app, node.graph || getActiveGraph(app), node);
   return true;
 }
 
 function saveHistoryCheckpoint() {
-  app.graph?.beforeChange?.();
-  app.canvas?.setDirty?.(true, true);
+  beginGraphChange(app);
 }
 
 function finishHistoryCheckpoint() {
-  app.graph?.afterChange?.();
-  app.graph?.setDirtyCanvas?.(true, true);
-  app.canvas?.setDirty?.(true, true);
+  endGraphChange(app);
 }
 
 async function refreshMissingModelState() {
@@ -621,7 +735,7 @@ async function applyModelChanges(dialog, backdrop) {
     if (select.yjSkip?.checked) continue;
     const nextValue = select.value || select.yjSelectedName;
     if (!nextValue) continue;
-    const node = findNodeById(result.node_id);
+    const node = findNodeById(app, result.node_id);
     const widget = node?.widgets?.[Number(result.widget_index)];
     if (!widget) continue;
     const widgetValue = resolveWidgetChoice(widget, nextValue);
@@ -639,7 +753,7 @@ async function applyModelChanges(dialog, backdrop) {
     }
     finishHistoryCheckpoint();
     await refreshMissingModelState();
-    app.canvas?.setDirty?.(true, true);
+    markGraphDirty(app);
     backdrop.remove();
   } catch (error) {
     console.error("[ComfyUI-YJNodes] apply failed, rolling back", error);

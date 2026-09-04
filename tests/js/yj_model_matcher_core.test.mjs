@@ -17,6 +17,7 @@ const {
   isModelValueAvailable,
   modelSearchName,
   resolveWidgetChoice,
+  shouldSkipCandidateByDefault,
   shouldDisableCandidateSelect,
 } = coreModule;
 
@@ -82,6 +83,13 @@ test("始终默认选择排序第一的最高分候选", () => {
     "ambiguous.safetensors",
   );
   assert.equal(defaultCandidateName([]), "");
+});
+
+test("仅最高候选为 100% 时默认不调整", () => {
+  assert.equal(shouldSkipCandidateByDefault([{ name: "exact.safetensors", score: 100 }]), true);
+  assert.equal(shouldSkipCandidateByDefault([{ name: "precision.safetensors", score: 95 }]), false);
+  assert.equal(shouldSkipCandidateByDefault([{ name: "params.safetensors", score: 90 }]), false);
+  assert.equal(shouldSkipCandidateByDefault([]), false);
 });
 
 test("双 CLIP 加载器的两个模型控件都会被识别", () => {
