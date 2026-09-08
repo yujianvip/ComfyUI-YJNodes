@@ -58,6 +58,7 @@ def _score_one(original: str, model: dict[str, Any]) -> MatchCandidate:
 
         if _directory(original) != _directory(model_name):
             reasons.append("different_directory")
+            score = min(score, 99)
 
         if original_norm.precisions != model_norm.precisions:
             reasons.append("different_precision")
@@ -65,7 +66,7 @@ def _score_one(original: str, model: dict[str, Any]) -> MatchCandidate:
 
         if original_norm.params != model_norm.params:
             reasons.append("different_params")
-            score = min(score, 90)
+            score = min(score, 95)
     else:
         score = _similarity(original_norm.base, model_norm.base)
         reasons.append("similar_name")

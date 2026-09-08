@@ -25,12 +25,12 @@ def test_normalize_keeps_plain_model_subject():
     assert result.params == set()
 
 
-def test_same_base_name_in_different_directory_is_an_exact_subject_match():
+def test_same_base_name_in_different_directory_scores_99():
     models = [{"type": "vae", "name": "vae/qwen_image_vae.safetensors", "display_name": "vae/qwen_image_vae.safetensors"}]
 
     [candidate] = score_candidates("other_dir/qwen_image_vae.safetensors", models)
 
-    assert candidate.score == 100
+    assert candidate.score == 99
     assert candidate.auto_select is True
     assert "same_base_name" in candidate.reasons
     assert "different_directory" in candidate.reasons
@@ -57,7 +57,7 @@ def test_equal_best_candidates_are_not_auto_selected():
 
     candidates = score_candidates("missing/foo.safetensors", models)
 
-    assert candidates[0].score == candidates[1].score == 100
+    assert candidates[0].score == candidates[1].score == 99
     assert candidates[0].auto_select is False
     assert candidates[1].auto_select is False
 
@@ -72,12 +72,12 @@ def test_precision_difference_scores_95_and_auto_selects():
     assert "different_precision" in candidate.reasons
 
 
-def test_parameter_difference_scores_90_and_auto_selects():
+def test_parameter_difference_scores_95_and_auto_selects():
     models = [{"type": "clip", "name": "qwen_2.5_vl_14b.safetensors", "display_name": "qwen_2.5_vl_14b.safetensors"}]
 
     [candidate] = score_candidates("qwen_2.5_vl_7b.safetensors", models)
 
-    assert candidate.score == 90
+    assert candidate.score == 95
     assert candidate.auto_select is True
     assert "different_params" in candidate.reasons
 
