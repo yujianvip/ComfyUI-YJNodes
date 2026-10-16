@@ -85,5 +85,5 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "YJDynamicImageBatchConcat": "去重复帧图像批次合并",
+    "YJDynamicImageBatchConcat": "Dynamic Image Batch Concat",
 }

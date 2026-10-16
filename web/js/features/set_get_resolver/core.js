@@ -1,25 +1,17 @@
 // 与界面无关的纯逻辑集中在这里，便于独立测试。
-function nodeTypeAndTitle(node) {
-  return {
-    type: String(node?.type || "").toLowerCase(),
-    title: String(node?.title || "").toLowerCase(),
-  };
+import { findGraphNodeById, getGraphItems, getGraphLink as getCompatibleGraphLink } from "../../shared/comfy_compat.js";
+
+function isKJNodeType(node, expected) {
+  // 标题可由用户修改；只接受 KJNodes 注册的稳定类型名。
+  return node?.type === expected || node?.constructor?.comfyClass === expected;
 }
 
 export function isSetNode(node) {
-  const { type, title } = nodeTypeAndTitle(node);
-  return (
-    type.includes("setnode") ||
-    (type.includes("set") && type.includes("node") && title.includes("set"))
-  );
+  return isKJNodeType(node, "SetNode");
 }
 
 export function isGetNode(node) {
-  const { type, title } = nodeTypeAndTitle(node);
-  return (
-    type.includes("getnode") ||
-    (type.includes("get") && type.includes("node") && title.includes("get"))
-  );
+  return isKJNodeType(node, "GetNode");
 }
 
 export function getVariableName(node) {
@@ -32,25 +24,14 @@ export function getVariableName(node) {
 }
 
 export function getGraphLink(graph, linkId) {
-  if (linkId === null || linkId === undefined) return null;
-  if (graph?.links instanceof Map) return graph.links.get(linkId) || null;
-  return graph?.links?.[linkId] || null;
+  return getCompatibleGraphLink(graph, linkId);
 }
 
-function getNodeById(graph, nodeId) {
-  if (typeof graph?.getNodeById === "function") {
-    return graph.getNodeById(nodeId);
-  }
-  return (graph?._nodes || []).find(
-    (node) => String(node?.id) === String(nodeId),
-  );
-}
-
-export function buildResolverPlan(graph) {
+export function buildResolverPlan(graph, nodes = getGraphItems(graph)) {
   const setNodes = [];
   const getNodes = [];
 
-  for (const node of graph?._nodes || []) {
+  for (const node of nodes) {
     if (isSetNode(node)) setNodes.push(node);
     else if (isGetNode(node)) getNodes.push(node);
   }
@@ -69,12 +50,12 @@ export function buildResolverPlan(graph) {
     const link = getGraphLink(graph, linkId);
     if (!link) continue;
 
-    const sourceNode = getNodeById(graph, link.origin_id);
+    const sourceNode = findGraphNodeById(graph, link.origin_id ?? link.originId, nodes);
     if (!sourceNode) continue;
     const sources = variables.get(variableName) || [];
     sources.push({
       sourceNode,
-      sourceSlot: link.origin_slot,
+      sourceSlot: link.origin_slot ?? link.originSlot,
       setNode,
     });
     variables.set(variableName, sources);
@@ -107,6 +88,7 @@ export function buildResolverPlan(graph) {
 
     operations.push({
       getNode,
+      setNode: source.setNode,
       sourceNode: source.sourceNode,
       sourceSlot: source.sourceSlot,
     });
@@ -129,9 +111,9 @@ export function collectTargets(graph, getNode) {
   for (const linkId of linkIds) {
     const link = getGraphLink(graph, linkId);
     if (!link) continue;
-    const targetNode = getNodeById(graph, link.target_id);
+    const targetNode = findGraphNodeById(graph, link.target_id ?? link.targetId);
     if (!targetNode) continue;
-    targets.push({ targetNode, targetSlot: link.target_slot });
+    targets.push({ targetNode, targetSlot: link.target_slot ?? link.targetSlot });
   }
   return targets;
 }
@@ -146,37 +128,111 @@ export function graphHasSubgraphs(graph) {
   );
 }
 
+function restoreOriginalLinks(graph, changes) {
+  const errors = [];
+  for (const change of [...changes].reverse()) {
+    if (!change.attempted) continue;
+    const input = change.targetNode.inputs?.[change.targetSlot];
+    const wasChanged = input && "link" in input
+      ? input.link !== change.originalLinkId || !getGraphLink(graph, change.originalLinkId)
+      : change.succeeded;
+    if (!wasChanged) continue;
+    try {
+      const restored = change.originalNode.connect(change.originalSlot, change.targetNode, change.targetSlot);
+      if (restored === null || restored === false || restored === undefined) {
+        throw new Error(`无法恢复节点 #${change.targetNode.id} 的输入 ${change.targetSlot}`);
+      }
+    } catch (error) {
+      errors.push(error);
+    }
+  }
+  return errors;
+}
+
+function restoreDeletedNodes(graph, nodesToDelete, setInputs) {
+  const errors = [];
+  for (const node of nodesToDelete) {
+    if (getGraphItems(graph).includes(node) || findGraphNodeById(graph, node.id) === node) continue;
+    try {
+      if (typeof graph?.add !== "function") throw new Error("图不支持重新添加节点");
+      graph.add(node);
+      if (!getGraphItems(graph).includes(node) && findGraphNodeById(graph, node.id) !== node) {
+        throw new Error(`节点 #${node.id} 未能重新加入图`);
+      }
+    } catch (error) {
+      errors.push(error);
+    }
+  }
+  for (const { setNode, sourceNode, sourceSlot, originalLinkId } of setInputs) {
+    if (setNode.inputs?.[0]?.link === originalLinkId && getGraphLink(graph, originalLinkId)) continue;
+    try {
+      const restored = sourceNode.connect(sourceSlot, setNode, 0);
+      if (restored === null || restored === false || restored === undefined) {
+        throw new Error(`无法恢复 Set 节点 #${setNode.id} 的输入`);
+      }
+    } catch (error) {
+      errors.push(error);
+    }
+  }
+  return errors;
+}
+
 export function applyResolverOperations(graph, operations, nodesToDelete = null) {
   let connectedCount = 0;
-  const completed = [];
-  try {
+  if (nodesToDelete && operations.some(({ sourceNode }) => nodesToDelete.has(sourceNode))) {
+    throw new Error("Set 节点互相串接，不能安全删除；请使用仅连线模式");
+  }
+  const jobs = operations.map((operation) => ({ ...operation, outputNode: operation.getNode }));
+  if (nodesToDelete) {
+    const visitedSets = new Set();
     for (const operation of operations) {
-      const targets = collectTargets(graph, operation.getNode);
-      for (const { targetNode, targetSlot } of targets) {
-        const link = operation.sourceNode.connect(
-          operation.sourceSlot,
-          targetNode,
-          targetSlot,
+      const setNode = operation.setNode || [...nodesToDelete].find((node) => isSetNode(node) && getVariableName(node) === getVariableName(operation.getNode));
+      if (!setNode || visitedSets.has(setNode)) continue;
+      visitedSets.add(setNode);
+      jobs.push({ ...operation, outputNode: setNode });
+    }
+  }
+  // 连线前先保存全部目标，避免 connect 修改输出 links 后漏掉后续目标。
+  const changes = jobs.flatMap((job) => collectTargets(graph, job.outputNode).map(({ targetNode, targetSlot }) => {
+    const input = targetNode.inputs?.[targetSlot];
+    const originalLinkId = input?.link;
+    const originalLink = getGraphLink(graph, originalLinkId);
+    return {
+      ...job, targetNode, targetSlot, originalLinkId,
+      originalNode: findGraphNodeById(graph, originalLink?.origin_id ?? originalLink?.originId) || job.outputNode,
+      originalSlot: originalLink?.origin_slot ?? originalLink?.originSlot ?? 0,
+      attempted: false, succeeded: false,
+    };
+  }));
+  const setInputs = nodesToDelete ? [...new Set(operations.map((item) => item.setNode).filter(Boolean))]
+    .map((setNode) => {
+      const operation = operations.find((item) => item.setNode === setNode);
+      return { setNode, sourceNode: operation.sourceNode, sourceSlot: operation.sourceSlot, originalLinkId: setNode.inputs?.[0]?.link };
+    }) : [];
+  let deletionStarted = false;
+  try {
+    for (const change of changes) {
+      change.attempted = true;
+      const link = change.sourceNode.connect(change.sourceSlot, change.targetNode, change.targetSlot);
+      if (link === null || link === false || link === undefined) {
+        throw new Error(
+          `无法连接节点 #${change.sourceNode.id} 到 #${change.targetNode.id} 的输入 ${change.targetSlot}`,
         );
-        if (link === null || link === false || link === undefined) {
-          throw new Error(
-            `无法连接节点 #${operation.sourceNode.id} 到 #${targetNode.id} 的输入 ${targetSlot}`,
-          );
-        }
-        completed.push({ operation, targetNode, targetSlot });
-        connectedCount += 1;
       }
+      change.succeeded = true;
+      connectedCount += 1;
+    }
+    if (nodesToDelete) {
+      deletionStarted = true;
+      for (const node of nodesToDelete) graph.remove(node);
     }
   } catch (error) {
-    // connect 会替换目标输入上的原 Get 连线；失败时按逆序恢复原连接。
-    for (const { operation, targetNode, targetSlot } of completed.reverse()) {
-      operation.getNode.connect(0, targetNode, targetSlot);
+    const rollbackErrors = deletionStarted ? restoreDeletedNodes(graph, nodesToDelete, setInputs) : [];
+    rollbackErrors.push(...restoreOriginalLinks(graph, changes));
+    if (rollbackErrors.length) {
+      throw new AggregateError([error, ...rollbackErrors], "转换失败，且部分原连线未能恢复；请检查工作流");
     }
     throw error;
-  }
-
-  if (nodesToDelete) {
-    for (const node of nodesToDelete) graph.remove(node);
   }
   return connectedCount;
 }

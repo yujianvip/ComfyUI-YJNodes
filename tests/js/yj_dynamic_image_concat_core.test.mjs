@@ -32,6 +32,10 @@ test("Nodes 2.0 的 constructor.comfyClass 可识别目标节点", () => {
   );
 });
 
+test("Legacy Nodes 的 type 字段可识别目标节点", () => {
+  assert.equal(isDynamicImageConcatNode({ type: "YJDynamicImageBatchConcat" }), true);
+});
+
 test("连接最后一个输入后自动添加下一项并通过 setSize 刷新布局", () => {
   const node = makeNode([{ name: "image1", type: "IMAGE", link: 9 }]);
   assert.equal(syncDynamicInputs(node), true);

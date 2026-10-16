@@ -1,5 +1,6 @@
 {
   "nodeCategories": {
+    "YJNodes_Image": "YJNodes/图像",
     "YJNodes_Workflow": "YJNodes/工作流"
   }
 }

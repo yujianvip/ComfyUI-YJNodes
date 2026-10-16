@@ -1,5 +1,7 @@
 import { app } from "../../../../../scripts/app.js";
 import { registerYJCanvasMenuItem } from "../../shared/canvas_menu.js";
+import { beginGraphChange, endGraphChange, getActiveGraph, getGraphNodes } from "../../shared/comfy_compat.js";
+import { getCurrentLanguage } from "../../shared/i18n.js";
 import {
   applyResolverOperations,
   buildResolverPlan,
@@ -21,7 +23,7 @@ const I18N = {
     wireOnly: "仅连线",
     wireDelete: "连线并删除",
     subgraphWarning: "检测到子图：为避免破坏跨子图引用，本次只允许连线，不删除 Set/Get。",
-    applyFailed: (message) => `转换失败，已保留并恢复原节点连接。\n${message}`,
+    applyFailed: (message) => `转换失败，已尝试恢复原节点连接；请检查工作流。\n${message}`,
   },
   en: {
     menu: "⚡ Replace Set/Get with Wires",
@@ -37,18 +39,12 @@ const I18N = {
     wireOnly: "Wire Only",
     wireDelete: "Wire & Delete",
     subgraphWarning: "Subgraphs detected. Set/Get deletion is disabled to protect cross-subgraph references.",
-    applyFailed: (message) => `Conversion failed; original nodes and links were preserved.\n${message}`,
+    applyFailed: (message) => `Conversion failed. Original links were restored where possible; please check the workflow.\n${message}`,
   },
 };
 
 function text() {
-  const settings = app?.ui?.settings;
-  const locale =
-    settings?.getSettingValue?.("Comfy.Locale") ||
-    settings?.getSettingValue?.("Comfy.Locale.Language") ||
-    settings?.getSettingValue?.("locale");
-  if (!locale || String(locale).toLowerCase().startsWith("zh")) return I18N.zh;
-  return I18N.en;
+  return I18N[getCurrentLanguage(app)] || I18N.en;
 }
 
 function showAlert(message) {
@@ -64,22 +60,10 @@ function showAlert(message) {
   console.warn(`[ComfyUI-YJNodes.SetGetResolver] ${message}`);
 }
 
-function beginGraphChange(graph) {
-  if (typeof graph?.beforeChange === "function") graph.beforeChange();
-  else graph?.change?.();
-}
-
-function endGraphChange(graph) {
-  if (typeof graph?.afterChange === "function") graph.afterChange();
-  else graph?.change?.();
-  graph?.setDirtyCanvas?.(true, true);
-  app.canvas?.setDirty?.(true, true);
-}
-
 function applyChanges(operations, nodesToDelete) {
-  const graph = app.graph;
+  const graph = getActiveGraph(app);
   let connectedCount = 0;
-  beginGraphChange(graph);
+  beginGraphChange(app, graph);
 
   try {
     connectedCount = applyResolverOperations(graph, operations, nodesToDelete);
@@ -88,7 +72,7 @@ function applyChanges(operations, nodesToDelete) {
     showAlert(text().applyFailed(error?.message || String(error)));
     return;
   } finally {
-    endGraphChange(graph);
+    endGraphChange(app, graph);
   }
 
   const action = nodesToDelete ? "rewired & deleted nodes" : "rewired only";
@@ -187,7 +171,8 @@ function showSelectionDialog(operations, nodesToDelete, conflicts, hasSubgraphs)
 }
 
 function initiateResolver() {
-  const plan = buildResolverPlan(app.graph);
+  const graph = getActiveGraph(app);
+  const plan = buildResolverPlan(graph, getGraphNodes(app, graph));
   if (plan.setNodes.length === 0 && plan.getNodes.length === 0) {
     showAlert(text().noNodes);
     return;
@@ -204,14 +189,14 @@ function initiateResolver() {
     plan.operations,
     plan.nodesToDelete,
     plan.conflicts,
-    graphHasSubgraphs(app.graph),
+    graphHasSubgraphs(graph),
   );
 }
 
 app.registerExtension({
   name: "ComfyUI-YJNodes.SetGetResolver",
   setup() {
-    registerYJCanvasMenuItem(LGraphCanvas, {
+    registerYJCanvasMenuItem({
       id: "set-get-resolver",
       order: 10,
       content: () => text().menu,

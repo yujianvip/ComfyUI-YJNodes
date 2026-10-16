@@ -1,6 +1,6 @@
 # ComfyUI-YJNodes
 
-一组面向 ComfyUI 的实用节点与工作流增强工具，提供缺失模型匹配、工作流完成提示音、Set/Get 物理连线转换、动态图片批次合并和 YJpause 工作流断点。
+一组面向 ComfyUI 的实用节点与工作流增强工具，提供缺失模型匹配、工作流完成提示音、Set/Get 物理连线转换、工作流布局整理、动态图片批次合并和 YJpause 工作流断点。
 
 [English](README_EN.md)
 
@@ -11,6 +11,7 @@
 | 缺失模型匹配 | 扫描选中节点或整个工作流，为缺失模型推荐本地候选并批量替换 |
 | 工作流完成提示音 | 支持自定义音效、音量以及“队列完成”或“每个任务完成”两种触发方式 |
 | Set/Get 转物理连线 | 将 KJNodes 的 Set Node / Get Node 逻辑连接展开为真实连线 |
+| 工作流布局整理 | 按节点用途和连接顺序排列画布，保留用户已有分组 |
 | 去重复帧图像批次合并 | 动态添加最多 20 个图片输入，并在合并时移除后续批次开头的重复帧 |
 | YJpause 工作流断点 | 在任意数据连线上暂停执行，可继续、重新开始、停止或按时自动停止 |
 
@@ -102,6 +103,10 @@
 
 > 此功能按指定数量裁剪批次开头，并不会逐帧计算内容是否真的重复。
 
+## 工作流布局整理
+
+在画布空白处右键，选择“🧭 整理工作流布局”。节点会按模型加载、输入、条件、采样、后处理、输出等模块排列。插件只替换自己创建的分组，用户原有分组会保留。整理会移动节点位置，操作前建议先保存工作流。
+
 ## YJpause 工作流断点
 
 节点路径：`YJNodes/工作流 → YJpause`
@@ -125,7 +130,7 @@ YJpause 可以插入任意数据连线，在执行到该位置时暂停当前工
 
 ## 界面语言
 
-YJpause 和缺失模型匹配器支持中文与英文，优先跟随 ComfyUI 的语言设置；读取不到时继续参考浏览器语言，非中文环境默认使用英文。Set/Get 转换器也支持中英文，读取不到 ComfyUI 语言时默认使用中文。动态合并节点和提示音设置目前使用中文标签。
+节点及前端功能支持中文与英文，优先跟随 ComfyUI 的语言设置；读取不到时继续参考浏览器语言，非中文环境默认使用英文。动态图像节点保留旧工作流使用的内部输入键，只翻译界面显示名称。
 
 ## 当前限制
 
@@ -143,7 +148,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -U pip
 .\.venv\Scripts\python.exe -m pip install pytest
 .\.venv\Scripts\python.exe -m pytest -q
-node --test tests\js\yj_canvas_menu.test.mjs tests\js\yj_comfy_compat.test.mjs tests\js\yj_dynamic_image_concat_core.test.mjs tests\js\yj_execution_sound_core.test.mjs tests\js\yj_i18n.test.mjs tests\js\yj_model_matcher_core.test.mjs tests\js\yj_model_matcher_extension.test.mjs tests\js\yj_pause_core.test.mjs tests\js\yj_set_get_resolver_core.test.mjs
+node --test tests\js\*.test.mjs
 ```
 
 Python 测试需要隔离环境；JavaScript 测试需要本机已安装 Node.js。

@@ -7,7 +7,7 @@ import time
 
 import pytest
 
-from yj_nodes.features.pause.routes import validate_action_payload
+from yj_nodes.features.pause.routes import is_local_request, validate_action_payload
 from yj_nodes.features.pause.service import PauseRegistry, PauseSession
 from yj_nodes.nodes import pause as pause_module
 from yj_nodes.nodes.pause import ANY_TYPE, YJPause
@@ -118,3 +118,14 @@ def test_validate_pause_action_payload(payload, expected):
 def test_validate_pause_action_payload_rejects_invalid_values(payload):
     with pytest.raises(ValueError):
         validate_action_payload(payload)
+
+
+@pytest.mark.parametrize("remote", [None, "127.0.0.1", "::1"])
+def test_pause_routes_allow_local_peer(remote):
+    assert is_local_request(type("Request", (), {"remote": remote})()) is True
+
+
+@pytest.mark.parametrize("remote", ["192.168.1.9", "10.0.0.2", "203.0.113.4"])
+def test_pause_routes_reject_remote_peer_even_if_headers_can_be_spoofed(remote):
+    request = type("Request", (), {"remote": remote, "headers": {"X-YJNodes-Request": "1"}})()
+    assert is_local_request(request) is False

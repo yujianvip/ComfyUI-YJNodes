@@ -49,3 +49,15 @@ def test_positive_duplicate_frames_trims_from_second_batch(monkeypatch):
     )
 
     assert result == ({"frame_counts": [5, 3, 1], "dim": 0},)
+
+
+def test_stable_existing_input_key_and_optional_english_alias(monkeypatch):
+    install_fake_torch(monkeypatch)
+    fields = YJDynamicImageBatchConcat.INPUT_TYPES()["required"]
+    assert "减去重复帧数" in fields
+    assert "remove_duplicate_frames" not in fields
+    result = YJDynamicImageBatchConcat().concat(
+        FakeImageBatch(5),
+        **{"减去重复帧数": 2, "image2": FakeImageBatch(5)},
+    )
+    assert result == ({"frame_counts": [5, 3], "dim": 0},)

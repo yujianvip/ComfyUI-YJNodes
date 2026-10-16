@@ -1,4 +1,14 @@
 {
+  "YJDynamicImageBatchConcat": {
+    "display_name": "去重复帧图像批次合并",
+    "description": "按指定数量裁剪 image1 之后各批次的开头，再拼接图片批次。",
+    "inputs": {
+      "image1": { "name": "图片 1", "tooltip": "第一批图片，完整保留。" },
+      "image2": { "name": "图片 2", "tooltip": "后续图片批次；连接后自动增加下一个输入。" },
+      "减去重复帧数": { "name": "减去重复帧数", "tooltip": "从 image1 之后每个批次的开头移除的帧数。" }
+    },
+    "outputs": { "0": { "name": "图片", "tooltip": "拼接后的图片批次。" } }
+  },
   "YJpause": {
     "display_name": "YJpause",
     "description": "开关打开时在此处暂停当前工作流。继续会从当前状态恢复；重新开始会结束本次任务并再次提交工作流；停止只结束当前任务。",

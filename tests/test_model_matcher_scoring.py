@@ -8,6 +8,44 @@ from yj_nodes.features.model_matcher.model_index import (
 from yj_nodes.features.model_matcher.scoring import score_candidates
 
 
+def test_candidate_priority_is_subject_then_params_then_precision_then_directory():
+    names = [
+        "local/qwen_8b_bf16.safetensors",
+        "remote/qwen_4b_fp32.safetensors",
+        "remote/qwen_4b_bf16.safetensors",
+        "local/qwen_other_4b_bf16.safetensors",
+    ]
+    candidates = score_candidates(
+        "local/qwen_4b_bf16.safetensors", [{"name": name} for name in names]
+    )
+    assert [item.name for item in candidates] == [names[2], names[1], names[0], names[3]]
+
+
+def test_equal_scores_with_different_parameter_priority_are_not_ambiguous():
+    candidates = score_candidates("qwen_4b_bf16.safetensors", [
+        {"name": "qwen_8b_bf16.safetensors"},
+        {"name": "qwen_4b_fp32.safetensors"},
+    ])
+    assert [item.score for item in candidates] == [95, 95]
+    assert candidates[0].name == "qwen_4b_fp32.safetensors"
+    assert candidates[0].auto_select is True
+
+
+def test_decimal_parameter_count_and_bf32_are_separate_from_subject():
+    result = normalize_model_name(r"nested\qwen_1.5B_bf32.safetensors")
+    assert result.base == "qwen"
+    assert result.params == {"1.5b"}
+    assert result.precisions == {"bf32"}
+
+
+def test_fuzzy_subject_similarity_precedes_parameter_match():
+    candidates = score_candidates("qwen_image_4b_bf16.safetensors", [
+        {"name": "unrelated_4b_bf16.safetensors"},
+        {"name": "qwen_images_8b_fp32.safetensors"},
+    ])
+    assert candidates[0].name == "qwen_images_8b_fp32.safetensors"
+
+
 def test_normalize_removes_directory_extension_precision_and_params():
     result = normalize_model_name("diffusion_models/Qwen-Image-Edit-2509_fp8_e4m3_7B.safetensors")
 

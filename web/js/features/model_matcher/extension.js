@@ -601,11 +601,12 @@ function ensureStyles() {
     .yj-mm-original-value{max-width:100%;overflow-wrap:anywhere}
     .yj-mm-select{display:none}
     .yj-mm-combobox{width:100%;min-width:0}
-    .yj-mm-combo-trigger{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;height:42px;padding:0 12px;border:1px solid #8a5708;border-radius:6px;background:#0e0e24;color:#f1f1f6;font:500 13px/1 "Microsoft YaHei UI","Segoe UI",sans-serif;text-align:left;cursor:pointer}
+    .yj-mm-combo-trigger{display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;height:42px;padding:0 12px;border:1px solid #8a5708;border-radius:6px;background:#0e0e24;color:#f1f1f6;font:500 13px/20px "Microsoft YaHei UI","Segoe UI",sans-serif;text-align:left;cursor:pointer}
     .yj-mm-combo-trigger:hover:not(:disabled),.yj-mm-combo-trigger[aria-expanded="true"]{border-color:#c17a0d}
     .yj-mm-combo-trigger:focus-visible{outline:2px solid #3f82f6;outline-offset:2px}
     .yj-mm-combo-trigger:disabled{opacity:.55;cursor:not-allowed}
-    .yj-mm-combo-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    /* Reserve vertical glyph space independently of host button/span styles. */
+    .yj-mm-combo-trigger > .yj-mm-combo-value{display:block;flex:1 1 auto;box-sizing:content-box;min-width:0;height:20px;min-height:20px;max-height:none;margin:0;padding:4px 0;font:inherit;line-height:20px;letter-spacing:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .yj-mm-combo-chevron{flex:0 0 auto;color:#9292a7;font-size:14px}
     .yj-mm-combo-panel{position:fixed;z-index:10001;padding:8px;border:1px solid #48485f;border-radius:7px;background:#111126;box-shadow:0 16px 48px rgba(0,0,0,.58)}
     .yj-mm-combo-panel[hidden]{display:none!important}
@@ -774,7 +775,7 @@ function searchUrl(kind, query) {
 app.registerExtension({
   name: "ComfyUI-YJNodes.ModelMatcher",
   setup() {
-    registerYJCanvasMenuItem(LGraphCanvas, {
+    registerYJCanvasMenuItem({
       id: "model-matcher",
       order: 20,
       content: () => t().menuSelectMissingModels,

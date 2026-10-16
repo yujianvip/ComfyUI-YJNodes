@@ -4,13 +4,56 @@ import {
   CompletionPolicy,
   normalizeExecutionSoundConfig,
 } from "./core.js";
+import { getCurrentLanguage, messageFor } from "../../shared/i18n.js";
 
 const LEGACY_STORAGE_KEY = "ComfyUI-YJNodes.ExecutionSound";
 const SOUND_LIST_URL = "/yj_nodes/execution_sound/sounds";
 const OPEN_FOLDER_URL = "/yj_nodes/execution_sound/open_folder";
 const SOUND_FILE_URL = "/yj_nodes/execution_sound/file/";
-const CATEGORY = ["YJNodes", "工作流完成提示音"];
 const RUNTIME_KEY = Symbol.for("ComfyUI-YJNodes.executionSoundRuntime");
+const MESSAGES = {
+  zh: {
+    category: "工作流完成提示音", unsupportedAudio: "当前环境不支持音频播放", readSoundFailed: "读取音效失败",
+    selectSoundFirst: "请先选择音效", readListFailed: "读取音效列表失败", playbackFailed: "提示音播放失败",
+    triggerMode: "提示音触发方式", queue: "队列完成", each: "每个任务",
+    queueHint: "整个队列清空后只播放一次", eachHint: "每完成一个工作流任务就播放一次",
+    backendUnavailable: "读取失败，请确认 ComfyUI 已加载插件后端", emptyFolder: "音效文件夹为空，放入文件后点击“刷新音效列表”",
+    missingCurrent: (count) => `${count} 个可用 · 当前文件已不存在`, current: (count, name) => `${count} 个可用 · 当前：${name}`,
+    available: (count) => `${count} 个音效可用`, chooseSound: "选择完成提示音…", missingFile: (name) => `文件不存在：${name}`,
+    refreshed: "音效列表已刷新", found: (count) => `找到 ${count} 个可用音效。`, loadingList: "正在读取音效列表…",
+    scanning: "正在扫描 sounds 文件夹…", usingSound: "使用音效", openFolder: "打开音效文件夹",
+    folderOpened: "音效文件夹已打开", folderOpenedHint: "放入文件后，请点击“刷新音效列表”。",
+    openFolderFailed: "无法打开音效文件夹", refreshList: "刷新音效列表", testSound: "测试当前音效",
+    enable: "启用工作流完成提示音", enableHint: "关闭后不播放任何工作流完成提示音。", enableCategory: "启用提示音",
+    mode: "触发方式", modeHint: "选择每个任务完成时播放，或者等整个队列清空后只播放一次。",
+    sound: "使用音效", soundHint: "音效来自插件根目录的 sounds 文件夹。",
+    volume: "音量", volumeHint: "测试播放和工作流完成播放都会使用此音量。",
+    actions: "音效文件夹与试听", actionsHint: "放入音效后刷新列表；测试按钮使用当前选择和当前音量。", actionsCategory: "文件夹与试听",
+  },
+  en: {
+    category: "Workflow Completion Sound", unsupportedAudio: "Audio playback is not supported in this environment", readSoundFailed: "Failed to load sound",
+    selectSoundFirst: "Select a sound first", readListFailed: "Failed to load the sound list", playbackFailed: "Sound playback failed",
+    triggerMode: "Sound trigger mode", queue: "Queue complete", each: "Each task",
+    queueHint: "Play once when the whole queue is empty", eachHint: "Play after each workflow task completes",
+    backendUnavailable: "Failed to load; confirm that ComfyUI loaded the plugin backend", emptyFolder: "The sounds folder is empty. Add files and refresh the list.",
+    missingCurrent: (count) => `${count} available · selected file is missing`, current: (count, name) => `${count} available · current: ${name}`,
+    available: (count) => `${count} sounds available`, chooseSound: "Choose a completion sound…", missingFile: (name) => `Missing file: ${name}`,
+    refreshed: "Sound list refreshed", found: (count) => `Found ${count} available sounds.`, loadingList: "Loading sound list…",
+    scanning: "Scanning the sounds folder…", usingSound: "Sound", openFolder: "Open sounds folder",
+    folderOpened: "Sounds folder opened", folderOpenedHint: "Add files, then refresh the sound list.",
+    openFolderFailed: "Could not open sounds folder", refreshList: "Refresh sound list", testSound: "Test selected sound",
+    enable: "Enable workflow completion sound", enableHint: "Turn off to disable all workflow completion sounds.", enableCategory: "Enable sound",
+    mode: "Trigger mode", modeHint: "Play after each task or once when the queue is empty.",
+    sound: "Sound", soundHint: "Sounds come from this plugin's sounds folder.",
+    volume: "Volume", volumeHint: "Used for both test and completion playback.",
+    actions: "Sounds folder and preview", actionsHint: "Refresh after adding sounds; test uses the selected sound and volume.", actionsCategory: "Folder and preview",
+  },
+};
+
+function t(key, ...args) {
+  const value = messageFor(MESSAGES, getCurrentLanguage(app), key);
+  return typeof value === "function" ? value(...args) : value;
+}
 const SETTING_IDS = Object.freeze({
   enabled: "YJNodes.ExecutionSound.Enabled",
   mode: "YJNodes.ExecutionSound.Mode",
@@ -24,7 +67,7 @@ let queueCheckTimer = null;
 let delayedQueueCheckTimer = null;
 
 function settingCategory(label) {
-  return [...CATEGORY, label];
+  return ["YJNodes", t("category"), label];
 }
 
 function getSetting(id) {
@@ -81,11 +124,11 @@ class SoundPlayer {
 
   async getBuffer(name) {
     this.unlock();
-    if (!this.context) throw new Error("当前环境不支持音频播放");
+    if (!this.context) throw new Error(t("unsupportedAudio"));
     if (!this.buffers.has(name)) {
       const promise = fetch(`${SOUND_FILE_URL}${encodeURIComponent(name)}`)
         .then((response) => {
-          if (!response.ok) throw new Error(`读取音效失败：HTTP ${response.status}`);
+          if (!response.ok) throw new Error(`${t("readSoundFailed")}: HTTP ${response.status}`);
           return response.arrayBuffer();
         })
         .then((data) => this.context.decodeAudioData(data));
@@ -100,7 +143,7 @@ class SoundPlayer {
   }
 
   async play(name, volume) {
-    if (!name) throw new Error("请先选择音效");
+    if (!name) throw new Error(t("selectSoundFirst"));
     const buffer = await this.getBuffer(name);
     const source = this.context.createBufferSource();
     const gain = this.context.createGain();
@@ -116,7 +159,7 @@ const player = new SoundPlayer();
 
 async function fetchSounds() {
   const response = await fetch(SOUND_LIST_URL, { cache: "no-store" });
-  if (!response.ok) throw new Error(`读取音效列表失败：HTTP ${response.status}`);
+  if (!response.ok) throw new Error(`${t("readListFailed")}: HTTP ${response.status}`);
   const payload = await response.json();
   return Array.isArray(payload.sounds) ? payload.sounds : [];
 }
@@ -126,7 +169,7 @@ async function playConfiguredSound(config = loadConfig(), reportError = true) {
     await player.play(config.sound, config.volume);
   } catch (error) {
     console.error("[ComfyUI-YJNodes] execution sound failed", error);
-    if (reportError) showMessage("提示音播放失败", error.message || String(error), "error");
+    if (reportError) showMessage(t("playbackFailed"), error.message || String(error), "error");
   }
 }
 
@@ -275,11 +318,11 @@ function renderModeToggle(_name, setter, value) {
   const container = document.createElement("div");
   container.className = "yj-es-segmented";
   container.setAttribute("role", "radiogroup");
-  container.setAttribute("aria-label", "提示音触发方式");
+  container.setAttribute("aria-label", t("triggerMode"));
 
   const choices = [
-    { value: "queue", label: "队列完成" },
-    { value: "each", label: "每个任务" },
+    { value: "queue", label: t("queue") },
+    { value: "each", label: t("each") },
   ];
   let current = value === "each" ? "each" : "queue";
   const buttons = choices.map((choice) => {
@@ -288,8 +331,8 @@ function renderModeToggle(_name, setter, value) {
     button.textContent = choice.label;
     button.setAttribute("role", "radio");
     button.title = choice.value === "queue"
-      ? "整个队列清空后只播放一次"
-      : "每完成一个工作流任务就播放一次";
+      ? t("queueHint")
+      : t("eachHint");
     button.addEventListener("click", () => selectMode(choice.value));
     container.appendChild(button);
     return { ...choice, button };
@@ -324,27 +367,27 @@ function updateSoundMeta(select, sounds, selected, error = false) {
   const meta = select.closest(".yj-es-sound-picker")?.querySelector(".yj-es-sound-meta");
   if (!meta) return;
   if (error) {
-    meta.textContent = "读取失败，请确认 ComfyUI 已加载插件后端";
+    meta.textContent = t("backendUnavailable");
     meta.dataset.state = "error";
   } else if (!sounds.length) {
-    meta.textContent = "音效文件夹为空，放入文件后点击“刷新音效列表”";
+    meta.textContent = t("emptyFolder");
     meta.dataset.state = "warning";
   } else if (selected && !sounds.includes(selected)) {
-    meta.textContent = `${sounds.length} 个可用 · 当前文件已不存在`;
+    meta.textContent = t("missingCurrent", sounds.length);
     meta.dataset.state = "warning";
   } else {
     meta.textContent = selected
-      ? `${sounds.length} 个可用 · 当前：${selected}`
-      : `${sounds.length} 个音效可用`;
+      ? t("current", sounds.length, selected)
+      : t("available", sounds.length);
     meta.dataset.state = "ready";
   }
 }
 
 function fillSoundSelect(select, sounds, selected) {
-  select.replaceChildren(new Option("选择完成提示音…", ""));
+  select.replaceChildren(new Option(t("chooseSound"), ""));
   for (const name of sounds) select.add(new Option(name, name));
   if (selected && !sounds.includes(selected)) {
-    select.add(new Option(`文件不存在：${selected}`, selected));
+    select.add(new Option(t("missingFile", selected), selected));
   }
   select.value = selected || "";
   select.yjSoundNames = sounds;
@@ -358,11 +401,11 @@ async function refreshSoundSelects(announce = false) {
     const sounds = await fetchSounds();
     player.clearCache();
     for (const select of selects) fillSoundSelect(select, sounds, select.value || getSetting(SETTING_IDS.sound));
-    if (announce) showMessage("音效列表已刷新", `找到 ${sounds.length} 个可用音效。`);
+    if (announce) showMessage(t("refreshed"), t("found", sounds.length));
     return sounds;
   } catch (error) {
     for (const select of selects) updateSoundMeta(select, [], select.value, true);
-    showMessage("读取音效失败", error.message || String(error), "error");
+    showMessage(t("readSoundFailed"), error.message || String(error), "error");
     return [];
   } finally {
     for (const select of selects) select.disabled = false;
@@ -376,11 +419,11 @@ function renderSoundSelect(_name, setter, value) {
   const select = document.createElement("select");
   select.className = "yj-es-sound-select";
   select.dataset.yjExecutionSoundSelect = "true";
-  select.setAttribute("aria-label", "使用音效");
-  select.append(new Option("正在读取音效列表…", ""));
+  select.setAttribute("aria-label", t("usingSound"));
+  select.append(new Option(t("loadingList"), ""));
   const meta = document.createElement("div");
   meta.className = "yj-es-sound-meta";
-  meta.textContent = "正在扫描 sounds 文件夹…";
+  meta.textContent = t("scanning");
   wrapper.append(select, meta);
   select.addEventListener("change", () => {
     setter(select.value);
@@ -391,7 +434,7 @@ function renderSoundSelect(_name, setter, value) {
     .catch((error) => {
       fillSoundSelect(select, [], String(value || ""));
       updateSoundMeta(select, [], String(value || ""), true);
-      showMessage("读取音效失败", error.message || String(error), "error");
+      showMessage(t("readSoundFailed"), error.message || String(error), "error");
     });
   return wrapper;
 }
@@ -410,20 +453,20 @@ function renderSoundActions() {
   const container = document.createElement("div");
   container.className = "yj-es-actions";
 
-  const openButton = makeActionButton("打开音效文件夹", async () => {
+  const openButton = makeActionButton(t("openFolder"), async () => {
     try {
       const response = await fetch(OPEN_FOLDER_URL, {
         method: "POST",
         headers: { "X-YJNodes-Request": "1" },
       });
       if (!response.ok) throw new Error(await response.text());
-      showMessage("音效文件夹已打开", "放入文件后，请点击“刷新音效列表”。");
+      showMessage(t("folderOpened"), t("folderOpenedHint"));
     } catch (error) {
-      showMessage("无法打开音效文件夹", error.message || String(error), "error");
+      showMessage(t("openFolderFailed"), error.message || String(error), "error");
     }
   });
-  const refreshButton = makeActionButton("刷新音效列表", () => refreshSoundSelects(true));
-  const testButton = makeActionButton("测试当前音效", () => {
+  const refreshButton = makeActionButton(t("refreshList"), () => refreshSoundSelects(true));
+  const testButton = makeActionButton(t("testSound"), () => {
     player.unlock();
     playConfiguredSound(loadConfig());
   });
@@ -436,48 +479,48 @@ app.registerExtension({
   settings: [
     {
       id: SETTING_IDS.enabled,
-      name: "启用工作流完成提示音",
-      tooltip: "关闭后不播放任何工作流完成提示音。",
+      name: t("enable"),
+      tooltip: t("enableHint"),
       type: "boolean",
       defaultValue: true,
-      category: settingCategory("启用提示音"),
+      category: settingCategory(t("enableCategory")),
       sortOrder: 50,
     },
     {
       id: SETTING_IDS.mode,
-      name: "触发方式",
-      tooltip: "选择每个任务完成时播放，或者等整个队列清空后只播放一次。",
+      name: t("mode"),
+      tooltip: t("modeHint"),
       type: renderModeToggle,
       defaultValue: "queue",
-      category: settingCategory("触发方式"),
+      category: settingCategory(t("mode")),
       sortOrder: 40,
     },
     {
       id: SETTING_IDS.sound,
-      name: "使用音效",
-      tooltip: "音效来自插件根目录的 sounds 文件夹。",
+      name: t("sound"),
+      tooltip: t("soundHint"),
       type: renderSoundSelect,
       defaultValue: "",
-      category: settingCategory("使用音效"),
+      category: settingCategory(t("sound")),
       sortOrder: 30,
     },
     {
       id: SETTING_IDS.volume,
-      name: "音量",
-      tooltip: "测试播放和工作流完成播放都会使用此音量。",
+      name: t("volume"),
+      tooltip: t("volumeHint"),
       type: "slider",
       attrs: { min: 0, max: 1, step: 0.01 },
       defaultValue: 0.7,
-      category: settingCategory("音量"),
+      category: settingCategory(t("volume")),
       sortOrder: 20,
     },
     {
       id: SETTING_IDS.actions,
-      name: "音效文件夹与试听",
-      tooltip: "放入音效后刷新列表；测试按钮使用当前选择和当前音量。",
+      name: t("actions"),
+      tooltip: t("actionsHint"),
       type: renderSoundActions,
       defaultValue: null,
-      category: settingCategory("文件夹与试听"),
+      category: settingCategory(t("actionsCategory")),
       sortOrder: 10,
     },
   ],

@@ -24,8 +24,44 @@ export function getSelectedNodes(app) {
 }
 
 export function getGraphNodes(app, graph = getActiveGraph(app)) {
-  if (Array.isArray(graph?.nodes)) return graph.nodes.filter(isGraphNode);
-  return Array.isArray(graph?._nodes) ? graph._nodes.filter(isGraphNode) : [];
+  return getGraphItems(graph).filter(isGraphNode);
+}
+
+export function getGraphItems(graph) {
+  if (Array.isArray(graph?.nodes)) return graph.nodes;
+  return Array.isArray(graph?._nodes) ? graph._nodes : [];
+}
+
+export function getGraphLink(graph, linkId) {
+  if (linkId === null || linkId === undefined) return null;
+  if (typeof graph?.getLink === "function") return graph.getLink(linkId) || null;
+  if (typeof graph?.getLinkById === "function") return graph.getLinkById(linkId) || null;
+  const links = graph?.links ?? graph?._links;
+  return links instanceof Map ? links.get(linkId) || null : links?.[linkId] || null;
+}
+
+export function findGraphNodeById(graph, id, nodes = getGraphItems(graph)) {
+  if (typeof graph?.getNodeById === "function") {
+    const found = graph.getNodeById(id) || graph.getNodeById(Number(id));
+    if (found) return found;
+  }
+  return nodes.find((node) => String(node?.id) === String(id)) || null;
+}
+
+export function getGraphGroups(graph) {
+  if (Array.isArray(graph?.groups)) return graph.groups;
+  return Array.isArray(graph?._groups) ? graph._groups : [];
+}
+
+export function getGraphItemBounds(item) {
+  const bounds = item?.getBounding?.() || item?.boundingRect;
+  const raw = bounds && bounds.length >= 4
+    ? [bounds[0], bounds[1], bounds[2], bounds[3]]
+    : bounds && "x" in bounds
+      ? [bounds.x, bounds.y, bounds.width, bounds.height]
+      : [item?.pos?.[0], item?.pos?.[1], item?.size?.[0], item?.size?.[1]];
+  const result = raw.map(Number);
+  return result.every(Number.isFinite) && result[2] > 0 && result[3] > 0 ? result : null;
 }
 
 export function beginGraphChange(app, graph = getActiveGraph(app)) {

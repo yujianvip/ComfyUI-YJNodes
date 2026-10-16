@@ -7,8 +7,8 @@ from dataclasses import dataclass
 from pathlib import PurePosixPath, PureWindowsPath
 
 
-PRECISION_RE = re.compile(r"(?i)\b(fp8|fp16|fp32|bf16|e4m3|e5m2)\b")
-PARAM_RE = re.compile(r"(?i)\b(\d+(?:\.\d+)?b)\b")
+PRECISION_RE = re.compile(r"(?i)(?<![a-z0-9])(fp8|fp16|fp32|bf16|bf32|e4m3|e5m2)(?![a-z0-9])")
+PARAM_RE = re.compile(r"(?i)(?<![a-z0-9])(\d+(?:\.\d+)?b)(?![a-z0-9])")
 SEPARATOR_RE = re.compile(r"[-_.\s]+")
 
 
@@ -34,7 +34,8 @@ def normalize_model_name(value: str) -> NormalizedModelName:
     extension = path.suffix.lower()
     stem = filename[: -len(extension)] if extension else filename
 
-    token_text = SEPARATOR_RE.sub(" ", stem).strip().lower()
+    # Extract numeric tokens before replacing dots in decimal parameter counts.
+    token_text = stem.strip().lower()
     precisions = {match.group(1).lower() for match in PRECISION_RE.finditer(token_text)}
     params = {match.group(1).lower() for match in PARAM_RE.finditer(token_text)}
 

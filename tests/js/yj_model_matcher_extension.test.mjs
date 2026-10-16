@@ -4,6 +4,17 @@ import test from "node:test";
 
 const source = readFileSync("web/js/features/model_matcher/extension.js", "utf8");
 
+test("选中模型名保留原始下划线并为字形下沿预留空间", () => {
+  assert.match(source, /valueElement\.textContent = selectedName \|\| t\(\)\.noCandidate/);
+  const rule = source.match(/\.yj-mm-combo-trigger > \.yj-mm-combo-value\{([^}]+)\}/)?.[1];
+  assert.ok(rule);
+  assert.match(rule, /box-sizing:content-box/);
+  assert.match(rule, /height:20px/);
+  assert.match(rule, /padding:4px 0/);
+  assert.match(rule, /line-height:20px/);
+  assert.match(rule, /text-overflow:ellipsis/);
+});
+
 test("应用模型替换后刷新 ComfyUI 的缺失模型状态", () => {
   assert.match(source, /await app\.refreshMissingModels\(\{ silent: true, reloadDefs: false \}\)/);
   assert.match(source, /finishHistoryCheckpoint\(\);\s*await refreshMissingModelState\(\);/);

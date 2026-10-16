@@ -1,5 +1,6 @@
 {
   "nodeCategories": {
+    "YJNodes_Image": "YJNodes/Image",
     "YJNodes_Workflow": "YJNodes/Workflow"
   }
 }

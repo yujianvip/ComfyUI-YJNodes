@@ -1,37 +1,12 @@
-// 菜单注册状态存放在具体画布原型上，确保热重载不会重复包装或串到其他画布。
-const REGISTRY_KEY = Symbol.for("ComfyUI-YJNodes.canvasMenuRegistry");
-const PATCH_KEY = Symbol.for("ComfyUI-YJNodes.canvasMenuPatch");
+import { app } from "../../../../scripts/app.js";
+import { getYJCanvasMenuItems, registerYJCanvasMenuItem } from "./canvas_menu_core.js";
 
-function sortedMenuItems(menuItems) {
-  return [...menuItems.values()].sort((left, right) =>
-    left.order - right.order || left.id.localeCompare(right.id)
-  );
-}
+// 统一通过官方画布菜单钩子注册，避免改写全局 LiteGraph 原型。
+app.registerExtension({
+  name: "ComfyUI-YJNodes.CanvasMenu",
+  getCanvasMenuItems() {
+    return getYJCanvasMenuItems();
+  },
+});
 
-export function registerYJCanvasMenuItem(canvasClass, item) {
-  if (!canvasClass?.prototype || !item?.id) return;
-  const prototype = canvasClass.prototype;
-  const menuItems = prototype[REGISTRY_KEY] ||= new Map();
-  menuItems.set(item.id, {
-    id: String(item.id),
-    order: Number(item.order) || 0,
-    content: item.content,
-    callback: item.callback,
-  });
-
-  if (prototype[PATCH_KEY]) return;
-  const original = prototype.getCanvasMenuOptions;
-  prototype.getCanvasMenuOptions = function (...args) {
-    const originalOptions = original ? original.apply(this, args) : [];
-    const options = Array.isArray(originalOptions) ? originalOptions : [];
-    if (options.length > 0 && options.at(-1) !== null) options.push(null);
-    for (const entry of sortedMenuItems(menuItems)) {
-      options.push({
-        content: typeof entry.content === "function" ? entry.content() : entry.content,
-        callback: entry.callback,
-      });
-    }
-    return options;
-  };
-  Object.defineProperty(prototype, PATCH_KEY, { value: true });
-}
+export { registerYJCanvasMenuItem };

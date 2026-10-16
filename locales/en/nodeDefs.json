@@ -1,4 +1,14 @@
 {
+  "YJDynamicImageBatchConcat": {
+    "display_name": "Trim & Concatenate Image Batches",
+    "description": "Concatenate image batches, trimming the specified number of frames from the start of each batch after image1.",
+    "inputs": {
+      "image1": { "name": "Image 1", "tooltip": "First image batch; its frames are kept in full." },
+      "image2": { "name": "Image 2", "tooltip": "Additional image batch. Connecting it adds the next input." },
+      "减去重复帧数": { "name": "Frames to trim", "tooltip": "Frames removed from the start of each batch after image1." }
+    },
+    "outputs": { "0": { "name": "Images", "tooltip": "Concatenated image batch." } }
+  },
   "YJpause": {
     "display_name": "YJpause",
     "description": "Pauses the current workflow at this point when enabled. Continue resumes from the current state; Restart stops and queues the workflow again; Stop ends only the current job.",

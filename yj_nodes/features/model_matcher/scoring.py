@@ -85,13 +85,25 @@ def score_candidates(original: str, models: list[dict[str, Any]], limit: int = 8
     candidates = [_score_one(original, model) for model in models]
     original_path = _normalized_path(original)
     original_directory = _directory(original).casefold()
-    candidates.sort(
-        key=lambda item: (
+    original_norm = normalize_model_name(original)
+
+    def priority(item: MatchCandidate) -> tuple:
+        normalized = normalize_model_name(item.name)
+        name_similarity = (
+            SequenceMatcher(None, original_norm.base, normalized.base).ratio()
+            if original_norm.base and normalized.base else 0
+        )
+        return (
+            name_similarity,
+            normalized.params == original_norm.params,
+            normalized.precisions == original_norm.precisions,
             item.score,
             _normalized_path(item.name) == original_path,
             _directory(item.name).casefold() == original_directory,
-            item.name.casefold(),
-        ),
+        )
+
+    candidates.sort(
+        key=lambda item: (*priority(item), item.name.casefold()),
         reverse=True,
     )
     candidates = candidates[:limit]
@@ -103,13 +115,13 @@ def score_candidates(original: str, models: list[dict[str, Any]], limit: int = 8
     )
     unresolved_best_tie = (
         len(candidates) > 1
-        and candidates[0].score == candidates[1].score
+        and priority(candidates[0]) == priority(candidates[1])
         and not (top_has_exact_path and not second_has_exact_path)
     )
     if unresolved_best_tie:
-        best_score = candidates[0].score
+        best_priority = priority(candidates[0])
         candidates = [
-            replace(item, auto_select=False) if item.score == best_score else item
+            replace(item, auto_select=False) if priority(item) == best_priority else item
             for item in candidates
         ]
     return candidates

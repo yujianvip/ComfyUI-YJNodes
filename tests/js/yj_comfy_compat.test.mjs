@@ -7,6 +7,9 @@ import {
   focusNode,
   getActiveGraph,
   getGraphNodes,
+  getGraphLink,
+  getGraphGroups,
+  getGraphItemBounds,
   getRootGraph,
   getSelectedNodes,
 } from "../../web/js/shared/comfy_compat.js";
@@ -119,4 +122,25 @@ test("图变更同时通知 Nodes 2.0 画布和 LiteGraph 历史", () => {
     "graph-dirty",
     "canvas-dirty",
   ]);
+});
+
+test("Nodes 2.0 分组与边界优先使用公开接口", () => {
+  const modernGroup = { getBounding: () => [10, 20, 300, 200] };
+  const legacyGroup = { pos: [0, 0], size: [20, 20] };
+  const graph = { groups: [modernGroup], _groups: [legacyGroup] };
+  assert.deepEqual(getGraphGroups(graph), [modernGroup]);
+  assert.deepEqual(getGraphItemBounds(modernGroup), [10, 20, 300, 200]);
+});
+
+test("Legacy Nodes 分组与边界回退到 pos 和 size", () => {
+  const group = { pos: [30, 40], size: [250, 100] };
+  assert.deepEqual(getGraphGroups({ _groups: [group] }), [group]);
+  assert.deepEqual(getGraphItemBounds(group), [30, 40, 250, 100]);
+});
+
+test("Nodes 2.0 公开连线接口优先，Legacy 内部连线字段可回退", () => {
+  const modernLink = { originId: 1, targetId: 2 };
+  const legacyLink = { origin_id: 3, target_id: 4 };
+  assert.equal(getGraphLink({ getLink: () => modernLink, _links: { 7: legacyLink } }, 7), modernLink);
+  assert.equal(getGraphLink({ _links: { 7: legacyLink } }, 7), legacyLink);
 });

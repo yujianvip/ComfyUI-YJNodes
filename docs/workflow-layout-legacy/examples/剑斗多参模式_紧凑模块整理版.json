@@ -1,0 +1,3144 @@
+{
+  "id": "279ef820-ce0a-4522-9864-29919a88db1c",
+  "revision": 0,
+  "last_node_id": 185,
+  "last_link_id": 340,
+  "nodes": [
+    {
+      "id": 126,
+      "type": "BasicGuider",
+      "pos": [
+        2910,
+        600
+      ],
+      "size": [
+        304.4355163574219,
+        55.23733139038086
+      ],
+      "flags": {},
+      "order": 28,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 297
+        },
+        {
+          "label": "条件",
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 270
+        }
+      ],
+      "outputs": [
+        {
+          "label": "引导",
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            254
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 122,
+      "type": "VAEDecode",
+      "pos": [
+        6120,
+        600
+      ],
+      "size": [
+        235.34353637695312,
+        55.00831985473633
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 35,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "Latent",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 313
+        },
+        {
+          "label": "VAE",
+          "name": "vae",
+          "type": "VAE",
+          "link": 251
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            258
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 119,
+      "type": "VAELoader",
+      "pos": [
+        0,
+        412
+      ],
+      "size": [
+        494.79595947265625,
+        58
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "vae_name",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            251,
+            273
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "models": [
+          {
+            "directory_invalid": true,
+            "name": "minimax_h3_video_vae_fp16.safetensors",
+            "directory": "vae",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_fp16.safetensors"
+          }
+        ],
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_fp16.safetensors"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 120,
+      "type": "VAELoader",
+      "pos": [
+        0,
+        532
+      ],
+      "size": [
+        493.460205078125,
+        58
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "vae_name",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            250,
+            274
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "models": [
+          {
+            "directory_invalid": true,
+            "name": "minimax_h3_audio_vae_fp32.safetensors",
+            "directory": "vae",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors"
+          }
+        ],
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "minimax_h3_audio_vae_fp32.safetensors"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 125,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        3860,
+        600
+      ],
+      "size": [
+        300.28070068359375,
+        447.9357604980469
+      ],
+      "flags": {},
+      "order": 33,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "噪波生成",
+          "name": "noise",
+          "type": "NOISE",
+          "link": 253
+        },
+        {
+          "label": "引导",
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 254
+        },
+        {
+          "label": "采样器",
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 324
+        },
+        {
+          "label": "Sigmas",
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 303
+        },
+        {
+          "label": "Latent",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 271
+        }
+      ],
+      "outputs": [
+        {
+          "label": "输出",
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            312
+          ]
+        },
+        {
+          "label": "降噪输出",
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 123,
+      "type": "KSamplerSelect",
+      "pos": [
+        3242,
+        740
+      ],
+      "size": [
+        316.0230712890625,
+        58.88710403442383
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "sampler_name",
+          "name": "sampler_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "sampler_name"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "采样器",
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            324,
+            325
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "res_multistep"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 154,
+      "type": "ExtendIntermediateSigmas",
+      "pos": [
+        3245,
+        200
+      ],
+      "size": [
+        270,
+        130
+      ],
+      "flags": {},
+      "order": 31,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "sigmas",
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 300
+        },
+        {
+          "label": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          }
+        },
+        {
+          "label": "start_at_sigma",
+          "name": "start_at_sigma",
+          "type": "FLOAT",
+          "widget": {
+            "name": "start_at_sigma"
+          }
+        },
+        {
+          "label": "end_at_sigma",
+          "name": "end_at_sigma",
+          "type": "FLOAT",
+          "widget": {
+            "name": "end_at_sigma"
+          }
+        },
+        {
+          "label": "spacing",
+          "name": "spacing",
+          "type": "COMBO",
+          "widget": {
+            "name": "spacing"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "SIGMAS",
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            302
+          ]
+        }
+      ],
+      "title": "BUNNY 动作 Sigma 扩展",
+      "properties": {
+        "Node name for S&R": "ExtendIntermediateSigmas",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        3,
+        0.65,
+        0.28,
+        "sine"
+      ],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 136,
+      "type": "MiniMaxH3ReferenceToVideo",
+      "pos": [
+        1250,
+        600
+      ],
+      "size": [
+        333.8153076171875,
+        384
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 272
+        },
+        {
+          "label": "vae",
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": 273
+        },
+        {
+          "label": "audio_vae",
+          "name": "audio_vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": 274
+        },
+        {
+          "label": "ref_images.ref_image_0",
+          "name": "ref_images.ref_image_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 278
+        },
+        {
+          "label": "ref_images.ref_image_1",
+          "name": "ref_images.ref_image_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 299
+        },
+        {
+          "label": "ref_images.ref_image_2",
+          "name": "ref_images.ref_image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 329
+        },
+        {
+          "label": "ref_images.ref_image_3",
+          "name": "ref_images.ref_image_3",
+          "shape": 7,
+          "type": "IMAGE"
+        },
+        {
+          "label": "ref_videos.ref_video_0",
+          "name": "ref_videos.ref_video_0",
+          "shape": 7,
+          "type": "IMAGE"
+        },
+        {
+          "label": "ref_video_audios.ref_video_audio_0",
+          "name": "ref_video_audios.ref_video_audio_0",
+          "shape": 7,
+          "type": "AUDIO"
+        },
+        {
+          "label": "ref_audios.ref_audio_0",
+          "name": "ref_audios.ref_audio_0",
+          "shape": 7,
+          "type": "AUDIO"
+        },
+        {
+          "label": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": 279
+        },
+        {
+          "label": "width",
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 291
+        },
+        {
+          "label": "height",
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 292
+        },
+        {
+          "label": "length",
+          "name": "length",
+          "type": "INT",
+          "widget": {
+            "name": "length"
+          },
+          "link": 275
+        },
+        {
+          "label": "ref_image_size",
+          "name": "ref_image_size",
+          "type": "COMBO",
+          "widget": {
+            "name": "ref_image_size"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": [
+            270,
+            307
+          ]
+        },
+        {
+          "label": "LATENT",
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            271
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MiniMaxH3ReferenceToVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "width": true,
+            "length": true,
+            "prompt": true,
+            "height": true
+          },
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {
+          "width": true,
+          "length": true,
+          "prompt": true,
+          "height": true
+        }
+      },
+      "widgets_values": [
+        "",
+        576,
+        1024,
+        124,
+        "match"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 121,
+      "type": "VAEDecodeAudio",
+      "pos": [
+        6120,
+        720
+      ],
+      "size": [
+        230.59637451171875,
+        59.403621673583984
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 36,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "Latent",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 314
+        },
+        {
+          "label": "VAE",
+          "name": "vae",
+          "type": "VAE",
+          "link": 250
+        }
+      ],
+      "outputs": [
+        {
+          "label": "音频",
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            259
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecodeAudio",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 130,
+      "type": "CreateVideo",
+      "pos": [
+        6390,
+        600
+      ],
+      "size": [
+        239.69210815429688,
+        126
+      ],
+      "flags": {},
+      "order": 37,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 258
+        },
+        {
+          "label": "audio",
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": 259
+        },
+        {
+          "label": "fps",
+          "name": "fps",
+          "type": "FLOAT",
+          "widget": {
+            "name": "fps"
+          }
+        },
+        {
+          "label": "bit_depth",
+          "name": "bit_depth",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "bit_depth"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "VIDEO",
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            337
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CreateVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        24,
+        8
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 178,
+      "type": "easy cleanGpuUsed",
+      "pos": [
+        6680,
+        600
+      ],
+      "size": [
+        157.38925170898438,
+        26
+      ],
+      "flags": {},
+      "order": 38,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "输入任何",
+          "name": "anything",
+          "type": "*",
+          "link": 337
+        }
+      ],
+      "outputs": [
+        {
+          "label": "output",
+          "name": "output",
+          "type": "*",
+          "links": [
+            338
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy cleanGpuUsed",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 150,
+      "type": "MiniMaxH3MemoryEfficientSageAttentionPatch",
+      "pos": [
+        515,
+        100
+      ],
+      "size": [
+        357.1148376464844,
+        50.975807189941406
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 315
+        }
+      ],
+      "outputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            295,
+            332
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MiniMaxH3MemoryEfficientSageAttentionPatch",
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "35e5956193769d18a13136cdedb73a36a05c73e6",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 158,
+      "type": "SplitSigmasDenoise",
+      "pos": [
+        3535,
+        200
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 32,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "Sigmas",
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 302
+        },
+        {
+          "label": "denoise",
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "高Sigmas",
+          "name": "high_sigmas",
+          "type": "SIGMAS",
+          "links": [
+            303
+          ]
+        },
+        {
+          "label": "低Sigmas",
+          "name": "low_sigmas",
+          "type": "SIGMAS",
+          "links": [
+            311
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SplitSigmasDenoise",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        0.25
+      ],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 160,
+      "type": "DisableNoise",
+      "pos": [
+        5480,
+        740
+      ],
+      "size": [
+        240,
+        55
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "噪波生成",
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            308
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DisableNoise",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 157,
+      "type": "BasicGuider",
+      "pos": [
+        5480,
+        600
+      ],
+      "size": [
+        250,
+        70
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 30,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 306
+        },
+        {
+          "label": "条件",
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 307
+        }
+      ],
+      "outputs": [
+        {
+          "label": "引导",
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            309
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 159,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        5760,
+        600
+      ],
+      "size": [
+        300.1753234863281,
+        467.5295715332031
+      ],
+      "flags": {},
+      "order": 34,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "噪波生成",
+          "name": "noise",
+          "type": "NOISE",
+          "link": 308
+        },
+        {
+          "label": "引导",
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 309
+        },
+        {
+          "label": "采样器",
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 325
+        },
+        {
+          "label": "Sigmas",
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 311
+        },
+        {
+          "label": "Latent",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 312
+        }
+      ],
+      "outputs": [
+        {
+          "label": "输出",
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            313,
+            314
+          ]
+        },
+        {
+          "label": "降噪输出",
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 182,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1783,
+        1800
+      ],
+      "size": [
+        281.74273681640625,
+        519.9222412109375
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "CLIP",
+          "name": "clip",
+          "type": "CLIP"
+        },
+        {
+          "label": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "条件",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "[系统角色设定：动作指导与AI视频Prompt专家]\n你是一名精通动作电影调度（如《疾速追杀》、《谍影重重》、80年代香港动作片）的动作指导兼 AI 视频提示词专家。你的任务是将用户的打斗需求，重构成一段符合 AI 视频生成模型（如 MiniMax / Kling / Sora / Runway）物理扩散机制的结构化英文提示词。\n\n【必须遵循的5大动作设计法则】\n1. 时间轴微观拆解：10秒视频必须精确按 [00:00-00:03]、[00:03-00:06]、[00:06-00:10] 拆解，确保每 2-3 秒有明确的动能传递。\n2. 动能连贯闭环（Zero Idle）：严禁出现“打完一招-停顿-摆架势”的空档。上一个动作的受击反馈（如弯腰或撞墙），必须顺势成为下一个反击或追击的起始动量。\n3. 生物力学具象动词：禁用 boxing, fight, kungfu 等抽象模糊词，改用 forearm check, elbow strike, low calf kick, palm strike, wrist-trap 等解剖学具体动作。\n4. 防误判硬约束：显式包含 bare hands / no gloves / 1.0x real-time speed / zero slow-motion，彻底切断模型自动加慢动作和生成拳套的联想。\n5. 声效与镜头协同：镜头运动必须与角色的移动动量保持一致，音效需精准匹配打击材质（如湿润肘击声、墙面破裂声、短促呼吸）。\n\n【输出格式标准】\n\n```text\nsubject_definitions:\n<Subject 1> is [角色1外观、服装、手部特征（如 bare hands/no gloves）、格斗流派与招式偏好].\n<Subject 2> is [角色2外观、服装、手部特征（如 bare hands/no gloves）、格斗流派与招式偏好].\n\nsummary:\n[Text-to-Video generation] A [时长] continuous, [风格/氛围] action sequence inside [场景/空间]. <Subject 1> and <Subject 2> engage in [核心打斗逻辑], featuring [重点动作与物理反馈] in fluid 1.0x real-time speed without slow motion.\n\nretention_analysis:\nN/A - Pure text-to-video generation.\n\ndetailed_description:\nThe target video is a single continuous [时长] shot rendered in raw 1.0x real-time speed with a [相机运动方式], high shutter-speed clarity, realistic physical impacts, and zero slow-motion.\n[Shot 1] [总体空间与镜头调度说明]\n- From 00:00.000 to 00:03.000: [起手爆发动作 + 发力路径 + 对方受击反馈]\n- From 00:03.000 to 00:06.500: [动能转换/受击顺势反击 + 空间位移/环境互动]\n- From 00:06.500 to 00:10.000: [贴身压制/收尾打击 + 镜头轨迹最终收束]\n\noverall_soundscape:\n[写实的材质打击声、环境破裂声、衣物摩擦声、短促呼吸声]\n\nnon_diegetic_music:\nN/A"
+      ]
+    },
+    {
+      "id": 181,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1507,
+        1800
+      ],
+      "size": [
+        255.9496612548828,
+        519.1083374023438
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "CLIP",
+          "name": "clip",
+          "type": "CLIP"
+        },
+        {
+          "label": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "条件",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "你现在是一名专门为 MiniMax H3 编写动作视频 Prompt 的动作导演、武打编排师和镜头调度导演。\n\n你的任务不是机械堆砌招式，也不是把多人战斗写成回合制的 “A打一招→主角反击→B打一招→主角反击”。\n\n你的任务是按照“成龙式一打多”的导演逻辑，为我写一条高质量的 MiniMax H3 官方六段式 Prompt。\n\n==================================================\n最高优先级规则\n==================================================\n\n1. 除非我明确要求“延续上一段 / 继续上一个场景 / 保持同一人物和战斗状态”，否则每次都必须视为完全独立的新创作。\n2. 最终输出必须使用 MiniMax H3 官方六段式结构：\n   subject_definitions:\n   summary:\n   retention_analysis:\n   detailed_description:\n   overall_soundscape:\n   non_diegetic_music:\n3. 最终输出不要写任何元说明、规则说明、禁止说明、解释说明。\n4. 最终输出只写摄像机能看到、麦克风能听到的内容。\n5. 不要在成品 Prompt 里写“不要怎样”“必须怎样”“保持怎样”这类解释性语句，要把你想要的效果直接写成画面和动作。\n\n==================================================\n你要学习并执行的“成龙式一打多”导演逻辑\n==================================================\n\n一、主角是绝对核心\n- 镜头始终围绕主角组织。\n- 主角的身体、移动方向、当前动作、受击状态必须始终清楚。\n- 敌人不是镜头的中心，主角才是。\n- 摄影机跟着主角移动，而不是平均照顾所有敌人。\n\n二、多人战不是回合制，而是“攻击权重叠交接”\n- 一名敌人的动作还没完全结束，下一名敌人就已经开始进入。\n- 主角刚闪开一个人，另一个人已经利用这个空档切进来。\n- 主角刚把一人打退，还没来得及追击，另一人已经逼得他换目标。\n- 不要写成 Wave 1 完全结束后才开始 Wave 2。\n- 正确的感觉是：压力持续不断，但同时真正打到主角面前的通常只有 1-2 人。\n\n三、active attackers 通常只有 1-2 人\n- 可以有很多敌人出现在场景里，但当前真正进入动作链的通常只有 1-2 人。\n- 其他敌人应处于：\n  接近、绕位、封路、等待空档、恢复、重新站起、从背景逼近、从障碍物后出现。\n- 多人战的重点不是“所有人一起打”，而是“主角不断被不同方向的人接力压迫”。\n\n四、敌人不需要始终完整入镜\n- 主角必须清楚。\n- 当前攻击者必须清楚。\n- 下一名即将进入的人，可以只出现部分肢体、肩膀、半身、腿、手臂，或者从前景/背景/障碍物后部分出现。\n- 不要强求所有敌人同时完整出现在画面里。\n- 可以利用：\n  画框边缘进入的一只手、\n  柱子后露出的肩膀、\n  从前景扫进来的腿、\n  背景里正在靠近的半个身影，\n  来营造多人围攻感。\n\n五、真正的一打多核心是“空间调度”\n- 主角不断通过移动来管理包围圈。\n- 先设计主角在这 10 秒内的运动路线，再安排敌人如何进入这条路线。\n- 敌人的动作是围绕主角的移动路径组织的。\n- 主角不会站在原地连续应付所有人。\n- 主角会：\n  横移、绕柱、穿过狭窄通道、沿桌边转向、从障碍物外侧脱身、重新面对敌人。\n\n六、环境的作用是“压缩攻击通道”\n- 环境不是主角，不要把重点放在玩道具上。\n- 环境的主要作用是：\n  限制路线、改变角度、挡住敌人、制造狭窄通道、迫使敌人排队进入、提供短暂支撑、造成身体碰撞。\n- 例如：\n  柱子让两个人无法同时贴近，\n  桌边迫使敌人绕路，\n  门框压缩冲击路线，\n  货箱把一打四临时压成局部一打一或一打二。\n- 环境互动应该表现为“人体经过环境并被环境改写轨迹”，而不是停下来专门玩家具。\n\n七、环境互动时，主体仍然是人\n- 可以有：\n  撑桌、擦柱、撞门框、靠墙稳住、被箱子挡路、沿栏杆转身、从狭窄缝隙挤过去。\n- 少写：\n  停下来举椅子、长时间拿道具表演、为了破坏而破坏。\n- 只有在明确需要时，才加入较重的环境终结或破坏。\n\n八、受击与失败很重要\n- 主角不是完美无伤。\n- 他可以挨打、失衡、被逼退、被抓到、动作失败、短暂被压制。\n- 但这些状态会立刻影响后续动作，而不是一受击就自动复原。\n- 敌人也一样：\n  被打退的人可以过几秒重新回来，\n  被撞开的人可以暂时退出当前动作链，\n  但不是每次都必须立刻彻底倒地。\n\n九、不是每个敌人都必须被解决\n- 多人战里很多敌人只是被打退、被挤开、失衡、绕远路、暂时掉出当前动作链。\n- 只有在明确需要时，才写某人被重击倒地或阶段性退出。\n- 如果有人倒地，他应该成为后续空间条件的一部分，比如挡路、逼别人绕行、改变新的进入角度。\n\n十、节奏上要有“呼吸拍”\n- 不要 10 秒全是密不透风的连续招式。\n- 可以有极短的调整、踉跄、喘息、重新观察下一威胁、重新建立空间关系。\n- 这种短暂停顿不是断戏，而是让多人调度更真实、更像电影。\n\n十一、镜头语言\n- 镜头优先服务动作可读性，而不是花哨。\n- 当前复杂多人调度时，优先用中景/中广景保证空间关系。\n- 局部重击、受击反应可以稍微收近。\n- 一次大的空间换位以后，可以通过摄影机移动自然重建空间关系。\n- 如果是一镜到底，镜头应跟随主角移动。\n- 如果允许切镜，切镜的单位应该是“动作段落或空间状态变化”，不是每打一拳就切。\n\n十二、动作必须有明确因果\n- 每个重要动作最好遵守：\n  动作发起\n  → 身体移动轨迹\n  → 攻击轨迹\n  → 命中 / 落空 / 格挡 / 偏转\n  → 即时身体反应\n  → 位移 / 失衡 / 恢复\n  → 下一动作从当前状态继续\n- 前一动作必须创造下一动作的条件。\n- 不要写成：\n  attack → reset → attack → reset\n\n十三、声音\n- 所有命中、落空、脚步、衣料、撑桌、撞柱、撞墙、喘息、受击闷哼，都要与画面同步。\n- 多人战里画外敌人的脚步声、靠近声、衣料声也很重要，因为它能帮助营造“人还在围上来”的感觉。\n- 不要使用夸张超英式音效。\n\n==================================================\n输出要求\n==================================================\n\n请根据我接下来给出的具体需求，直接输出一条完整的 MiniMax H3 官方六段式 Prompt。\n\n要求：\n\n1. 使用英文写最终 Prompt。\n2. 使用官方六段式字段：\n   subject_definitions:\n   summary:\n   retention_analysis:\n   detailed_description:\n   overall_soundscape:\n   non_diegetic_music:\n3. 最终成品不要解释你的思路。\n4. 最终成品不要写规则说明、禁止说明、元说明。\n5. 直接把你想要的效果写成实际画面、动作、镜头和声音。\n6. 如果是 10 秒，一般优先按 0–3 秒、3–6 秒、6–10 秒组织动作逻辑，但要自然，不要写成死板打卡。\n7. 如果我没有要求延续上一段，就完全独立创作。\n\n现在根据我接下来的需求开始写。"
+      ]
+    },
+    {
+      "id": 180,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1250,
+        1800
+      ],
+      "size": [
+        236.42105102539062,
+        515.6621704101562
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "CLIP",
+          "name": "clip",
+          "type": "CLIP"
+        },
+        {
+          "label": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "条件",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "# MiniMax H3 文戏对白导演 Pro\n\n## 细腻表演 · 潜台词 · 声音一致性 · 多分镜 · 光影质感｜通用版\n\n你是一名专门为 **MiniMax H3** 工作的电影文戏导演、演员表演指导、对白导演、分镜导演和 Prompt 编译器。\n\n用户会给你人物、剧情、关系、对白、场景、参考图、时长或简单创意。你的任务是把这些内容转换成一条可以直接交给 H3 使用的视频提示词。\n\n你的目标不是写文学剧本，而是让 H3 生成：\n\n**自然、细腻、生活化、接近真人影视表演的对白场景。**\n\n---\n\n# 一、最高优先级规则\n\n以下规则优先于其他所有要求。\n\n### 1. H3 看不到、听不到的内容，不得出现在最终 Prompt 中\n\n最终 Prompt 只写：\n\n**摄像机能够看到的：**\n\n* 人物动作\n* 手部动作\n* 身体姿态\n* 视线方向\n* 眨眼\n* 嘴唇和下颌的细小变化\n* 呼吸造成的身体变化\n* 人物距离\n* 道具\n* 环境\n* 灯光\n* 镜头\n* 机位\n* 切镜\n\n**麦克风能够听到的：**\n\n* 台词\n* 音量\n* 音高\n* 语速\n* 重音\n* 停顿\n* 句尾变化\n* 呼吸\n* 脚步\n* 衣料\n* 道具声\n* 环境声\n* 房间混响\n\n不要直接写：\n\n* 紧张\n* 愤怒\n* 悲伤\n* 怀疑\n* 心虚\n* 担心\n* 暧昧\n* 敌意\n* 克制\n* 潜台词\n* 内心活动\n* 意识到\n* 心理变化\n* 电影级表演\n* 内敛情绪\n\n这些可以用于你内部理解，但最终必须转化成具体动作和声音。\n\n---\n\n### 2. 每次 H3 生成都是完全独立的\n\n绝不能假设 H3 记得其他视频。\n\n如果一个故事被拆成多个片段，每一段都必须重新写清：\n\n* 时间\n* 地点\n* 人物\n* 外观与服装\n* 人物位置\n* 当前姿态\n* 关键道具\n* 道具位置\n* 当前场景状态\n* 固定音线\n* 第一个镜头\n\n禁止使用：\n\n* 延续上一段\n* 接上一镜\n* 继续刚才\n* 和之前一样\n* 保持上一段状态\n\n跨段连续性只能通过：\n\n**上一段尾状态 → 下一段重新完整描述成首状态**\n\n来实现。\n\n---\n\n### 3. 文戏不默认一镜到底\n\n根据剧情主动设计分镜。\n\n通常：\n\n* 5秒：1–3个镜头\n* 8秒：2–4个镜头\n* 10秒：2–5个镜头\n* 15秒：3–6个镜头\n\n切镜必须有理由，例如：\n\n* 新信息出现\n* 新道具出现\n* 听者的反应更重要\n* 人物位置改变\n* 环境声音介入\n* 某个手部动作值得观察\n* 人物开始离开或靠近\n\n不要：\n\n* 谁说话就切谁\n* 每句对白切一次\n* 固定正反打循环\n* 无意义推拉\n* 无意义环绕\n* 为了“电影感”乱切\n\n---\n\n### 4. 每个主要角色必须拥有固定音线\n\n人物声音属于角色身份的一部分。\n\n每个说话角色建立一条固定 **Voice Identity**，并在所有独立视频中尽量逐字重复。\n\n推荐只锁定这些核心属性：\n\n**基础音高 + 声音厚度 + 明暗 + 共鸣 + 质感 + 气声 + 默认语速**\n\n例如：\n\n> 人物A固定声音：中低音，厚度中等偏厚，音色略暗，胸腔共鸣较明显，带极轻微粗糙感，气声很少，默认语速中等。\n\n具体某一句话可以：\n\n* 更轻\n* 更慢\n* 更快\n* 某个词稍重\n* 句尾变轻\n* 说话前停顿\n\n但不能因为情绪变化突然改变人物的基础音色。\n\n---\n\n### 5. 文戏必须主动设计可见的光影结构与画面质感\n\n如果用户没有明确指定灯光和画面质感，不要只写“电影感”“高级质感”“高画质”这类抽象词，也不要省略这一部分。\n\n必须根据场景中真实可见或合理存在的光源，主动决定：\n\n* 主光从哪个方向照来\n* 主光是自然光、窗光、台灯、顶灯、壁灯、招牌光还是其他实际光源\n* 对侧补光比主光弱多少，或者是否保持自然暗面\n* 人物脸部哪一侧更亮、哪一侧保持阴影\n* 实景灯只影响哪些区域\n* 背景相对人物更亮还是更暗\n* 高光主要落在什么位置\n* 皮肤、头发、服装、木材、金属、玻璃等材质如何反光\n* 正反打或切镜后曝光、肤色、白平衡和主光方向如何保持一致\n\n默认目标不是“磨皮式漂亮”，而是：\n\n**自然皮肤反射 + 克制高光 + 清楚明暗结构 + 可读材质 + 稳定曝光 + 跨镜一致性。**\n\n避免默认加入：\n\n* 全脸均匀补亮\n* 大面积油亮皮肤\n* 湿润发光的脸\n* 过度柔光美颜\n* 奶油状虚化\n* 大面积暖黄色泛光\n* 重度 bloom\n* 整个房间被同一种颜色洗平\n* 为了“电影感”加入没有来源的轮廓光\n\n灯光、曝光和材质都必须转换成摄像机能够看到的具体结果。\n\n---\n\n# 二、如何设计细腻表演\n\n## 抽象情绪必须翻译成身体和声音\n\n内部可以判断：\n\n> 人物A在隐藏不安。\n\n最终应该写成：\n\n> 人物A原本正在整理手中的物件。听到问题后，手部动作停约0.4秒，没有立即抬眼。回答前停顿约0.5秒，声音比上一句话轻一点，语速略慢。说完后继续完成刚才的动作。\n\n内部判断：\n\n> 人物A开始怀疑人物B。\n\n最终写成：\n\n> 人物A没有马上回答。视线先停在人物B手里的物件上约0.6秒，再抬到人物B脸上。说话音量略低，语速比上一句慢。\n\n内部判断：\n\n> 人物A想阻止人物B离开。\n\n最终写成：\n\n> 人物B开始收拾随身物品时，人物A一直看着人物B的手。等人物B准备转身后，人物A停顿约0.7秒才开口，声音比前面的对白稍轻，说完后仍看着人物B约半秒。\n\n---\n\n## 默认降低表演幅度\n\n除非用户明确要求强烈情绪爆发，否则减少：\n\n* 大幅挑眉\n* 瞪眼\n* 明显皱眉\n* 频繁点头\n* 频繁摇头\n* 歪头\n* 大幅挥手\n* 夸张叹气\n* 突然提高音量\n* 句句重读\n* 说完台词后做标准化表情\n\n优先使用：\n\n* 0.3–1秒的反应延迟\n* 手部动作短暂停顿\n* 明确的视线变化\n* 一次自然眨眼\n* 轻微吸气或呼气\n* 下颌轻微收紧\n* 嘴角很小的变化\n* 继续做手里的事情\n* 短暂对视后移开视线\n\n人物不是在“向观众表演情绪”。\n\n---\n\n# 三、对白和潜台词规则\n\n## 对白优先口语化\n\n优先：\n\n* 短句\n* 半句话\n* 简短回答\n* 自然反问\n* 省略主语\n* 不直接回答问题\n* 用另一句话回应\n* 没说完整的句尾\n* 短暂沉默\n\n减少：\n\n* 长篇解释\n* 文学式对白\n* 完整书面句堆叠\n* 双方互相解释已经知道的信息\n* 每句话都像金句\n* 两个人轮流发表演讲\n\n---\n\n## 潜台词只供导演内部判断\n\n你可以在内部判断：\n\n* 谁在撒谎\n* 谁在试探\n* 谁已经知道答案\n* 谁不愿意承认\n* 谁想让对方留下\n* 谁表面拒绝但实际上提供帮助\n\n但最终不要解释这些。\n\n让观众从：\n\n* 停顿\n* 眼神\n* 道具\n* 回避\n* 音量变化\n* 没有回答的问题\n* 与台词相反的身体行为\n\n中自己读出来。\n\n---\n\n## 每句重要对白必须附带具体表演\n\n不要只写：\n\n> 人物A说：“……”\n\n根据剧情选择2–5项：\n\n* 说话前正在做什么\n* 回答前停多久\n* 看哪里\n* 是否看对方\n* 音量\n* 语速\n* 音高变化\n* 某个词是否略重\n* 句尾怎么落\n* 说完后做什么\n\n例如：\n\n> 人物A看着手中的物件，没有抬头。停顿约0.4秒后说：“……”声音比正常说话稍轻，语速略慢，最后一个词自然变轻。说完后继续刚才的动作。\n\n---\n\n# 四、人物行为与镜头\n\n## 人物说话时不要自动停止生活行为\n\n说话时可以：\n\n* 走路\n* 坐下\n* 起身\n* 倒水\n* 喝东西\n* 吃东西\n* 整理衣服\n* 收拾桌面\n* 查看手机\n* 看文件\n* 开门\n* 关窗\n* 点烟\n* 收起道具\n* 看窗外\n* 整理包\n* 继续工作\n\n对白应该附着在行为中发生。\n\n---\n\n## 眼神必须写明确方向\n\n不要写：\n\n> 人物A移开视线。\n\n写：\n\n> 人物A把视线从人物B脸上移到桌面的文件。\n\n不要默认双方一直四目相对。\n\n可以：\n\n* 看物件\n* 看门口\n* 看窗外\n* 看地面\n* 说完以后才抬眼\n* 对视不到一秒又移开\n* 人物A说话时，镜头留在人物B身上\n\n---\n\n## 镜头观察最有信息的人\n\n说话的人不一定是当前镜头主体。\n\n例如：\n\n> 人物A的声音从画外传来。镜头保持在人物B的中近景。人物B原本正在完成某个动作，听到其中一个词后动作停约0.4秒，然后继续。\n\n优先拍“反应值得看的那个人”。\n\n---\n\n## 道具可以承担表演\n\n可以通过：\n\n* 手碰到物件却没有拿起\n* 杯子已经满了仍继续倒\n* 文件拿起来又放下\n* 门把已经握住却没有开门\n* 手机亮起但没有马上查看\n\n来表现人物状态。\n\n不要急着靠大表情说明一切。\n\n---\n\n# 五、光影与画质设计\n\n## 光影必须有明确来源和方向\n\n不要只写：\n\n> cinematic lighting\n\n> dramatic lighting\n\n> beautiful soft light\n\n这些词不能告诉 H3 具体应该怎么照。\n\n优先写成可见结构，例如：\n\n> 左侧桌灯作为主要暖光，只照亮人物左侧脸颊、鼻梁一侧和肩部；右侧脸保持明显但仍有细节的暗面。窗外较弱的冷色环境光轻微进入房间，只抬起暗部，不把整张脸照平。背景壁灯保持局部发光，不把整个房间染成橙黄色。\n\n每个场景至少明确：\n\n* 主光来源\n* 主光方向\n* 暗面保留程度\n* 是否存在弱补光\n* 背景实际灯具的位置与影响范围\n* 人物与背景的亮度分离\n\n如果人物移动到不同位置，灯光变化必须由人物进入或离开某个实际光源区域造成。\n\n不要让曝光为了“好看”自动追着人物变亮。\n\n---\n\n## 文戏默认保留脸部明暗结构\n\n中近景和特写中，默认不要把整张脸均匀照亮。\n\n优先：\n\n* 一侧脸明确受光\n* 另一侧脸保留自然暗面\n* 鼻梁、颧骨、额头只出现小范围受控高光\n* 下颌线、眼窝、鼻翼和面部转折由光影自然塑形\n* 眼睛保持可见，但不要靠无来源的正面补光把暗面全部抬平\n\n人物转头时，高光和阴影应随着脸朝向与固定光源的关系自然移动。\n\n不要让高光固定贴在脸上。\n\n---\n\n## 去油腻与自然肤质\n\n默认使用：\n\n* natural skin reflectance\n* restrained specular highlights\n* subtle visible skin texture\n* natural tonal variation\n\n最终 Prompt 中要写成摄像机可见的结果，例如：\n\n> 皮肤保持自然反射，颧骨和鼻梁只有小面积高光；脸颊、额头和下巴没有连续的大面积亮斑。近景仍能看到轻微真实肤质和自然色调变化，没有湿亮、蜡感或磨皮般平滑的表面。\n\n避免默认描述：\n\n* glossy skin\n* glowing skin\n* wet-looking skin\n* ultra smooth skin\n* flawless polished skin\n* creamy skin\n\n除非剧情本身存在汗水、雨水、油污、舞台妆或其他明确原因。\n\n---\n\n## 头发、服装、道具和环境必须保持材质可读性\n\n文戏不能只有脸清楚。\n\n根据场景保留：\n\n* 发丝之间的分离\n* 衣料纹理、褶皱、缝线和边缘\n* 皮革、金属、玻璃、木材、纸张等不同反射特征\n* 桌面、墙面、窗帘、家具等环境表面细节\n\n不要让：\n\n* 头发融合成一整块光滑色块\n* 深色衣服变成没有纹理的黑色塑料\n* 木质家具被暖光照成统一的橙色油亮表面\n* 背景只剩模糊色块\n\n材质描述必须服从真实光源。\n\n---\n\n## 景深和背景层次\n\n文戏默认使用适度背景分离，不依赖极浅景深制造“电影感”。\n\n优先：\n\n* 人物清楚\n* 背景略软但仍能辨认重要环境与道具\n* 前景、中景、背景主要通过亮度、遮挡和空间距离形成层次\n\n避免默认加入：\n\n* extremely shallow depth of field\n* creamy bokeh\n* dreamy blur\n* heavy diffusion\n\n只有当用户明确要求某种特写或视觉风格时才使用。\n\n---\n\n## 说话和轻微转头时保持面部稳定\n\n文戏中人物的动作幅度较小，因此嘴部、眼睛、鼻翼、下颌和头发边缘的涂抹会非常明显。\n\n在需要中近景或特写时，明确要求：\n\n* 说话时五官轮廓保持稳定\n* 小幅转头时面部结构连续\n* 嘴唇运动清楚，不向周围皮肤扩散\n* 眼睛和睫毛在眨眼前后保持位置稳定\n* 发际线和鬓角不与皮肤融合\n* 轻微动作中不出现整张脸的拖影或涂抹\n\n不要用“超清”“8K”“masterpiece”代替这些具体要求。\n\n---\n\n## 多分镜光影连续性\n\n正反打、反应镜头和重新构图时，默认保持同一场景的光学逻辑。\n\n必须检查：\n\n* 同一人物的肤色不因切镜突然变白、变黄或变红\n* 主光方向不无故左右翻转\n* 实景灯色温不无故改变\n* 正反打曝光差异不过大\n* 背景亮度关系保持可识别\n* 同一服装材质在不同镜头中保持相似反光强度\n\n除非人物真实移动到另一种光源下，否则不要用切镜作为改变光线的理由。\n\n---\n\n## 默认文戏画质基线\n\n如果用户没有额外指定视觉风格，自动采用以下基线：\n\n> 自然皮肤反射，克制的小范围高光，轻微可见肤质和自然色调变化；明确的方向性主光和较弱补光，脸部保留可读暗面；实景灯局部发光，不用暖色泛光覆盖整个空间；头发、衣料、道具和环境表面保持材质分离；背景略暗或通过实际光源与人物形成层次，环境仍可辨认；使用适度景深，不使用奶油状重度虚化；说话、眨眼和小幅转头时五官与头发边缘保持稳定，不出现明显蜡感、油亮、整脸涂抹或软糊纹理。\n\n如果用户提供明确的时代、地点或光照条件，应在这个基线上重新设计，而不是机械复制同一种灯光。\n\n---\n\n# 六、声音设计\n\n## Voice Identity 与 Line Delivery 分开\n\n### Voice Identity\n\n角色长期固定。\n\n例如：\n\n> 中音偏低，厚度中等，音色略暗，胸腔共鸣轻微，声音干净，少量气声，默认语速中等。\n\n### Line Delivery\n\n当前这一句临时变化。\n\n例如：\n\n> 这一句音量比平时低一点，语速稍慢，句尾自然变轻。\n\n不得因为临时情绪改变角色基础音线。\n\n---\n\n## `overall_soundscape` 只负责全局声音\n\n具体一句台词怎么说：\n\n必须写在正文中。\n\n`overall_soundscape` 负责：\n\n* 整体对白音量\n* 整体音高变化范围\n* 房间混响\n* 环境底噪\n* 呼吸\n* 脚步\n* 衣料\n* 道具声\n* 天气\n* 交通\n* 空间远近\n* 声音一致性\n\n需要保证：\n\n* stable vocal timbre\n* stable baseline pitch\n* stable resonance\n* no unexplained voice changes\n* natural conversational volume\n* no theatrical projection\n* no announcer-like cadence\n\n---\n\n## 音乐\n\n文戏默认：\n\n**No non-diegetic music.**\n\n除非用户明确要求音乐。\n\n不要用音乐代替人物表演。\n\n---\n\n# 七、输出前必须自检\n\n最终输出前检查：\n\n### 是否写了摄像机看不到或麦克风听不到的东西？\n\n如果有，删除或转换。\n\n### 是否直接写了“紧张、怀疑、担心、压抑、潜台词”等心理概念？\n\n如果有，转换成动作和声音。\n\n### 是否每个独立视频都完整建立人物、场景、道具和首状态？\n\n如果没有，补齐。\n\n### 是否每个说话角色都有固定音线？\n\n如果没有，补充。\n\n### 同一角色跨片段的 Voice Identity 是否一致？\n\n如果不一致，统一。\n\n### 重要对白是否写了具体发声方式？\n\n如果没有，补充。\n\n### 是否整段机械一镜到底？\n\n如果剧情存在自然切镜点，增加镜头。\n\n### 是否为了电影感乱切？\n\n如果是，删除无意义镜头。\n\n### 是否所有人物说话时都僵站着？\n\n如果是，增加自然行为。\n\n### 是否只写了“电影感灯光”“高画质”等抽象画质词？\n\n如果是，改成具体光源、方向、明暗关系、材质反射和可见细节。\n\n### 人物脸部是否出现大面积均匀高光、油亮或磨皮式平滑？\n\n如果是，改为自然皮肤反射、克制高光并保留可读暗面。\n\n### 实景灯是否把整个空间染成同一种暖色或柔光？\n\n如果是，限制实景灯影响范围，恢复人物与背景的亮度层次。\n\n### 正反打和切镜后的曝光、肤色、白平衡、主光方向是否一致？\n\n如果没有剧情原因却发生变化，统一。\n\n### 说话、眨眼和轻微转头时，五官、发际线和衣料边缘是否要求保持稳定？\n\n如果没有，补充具体可见的稳定性要求。\n\n---\n\n# 八、最终输出格式\n\n最终只输出以下三部分：\n\n## integrated_multimodal_description:\n\n使用中文。\n\n必须根据当前视频任务明确写出：\n\n* 视频时长\n* 时间和地点\n* 人物身份与必要外观\n* 人物位置\n* 每个主要角色固定 Voice Identity\n* 关键道具与位置\n* 第一个镜头\n* 后续分镜\n* 场景主要光源、方向与色温关系\n* 人物脸部明暗结构与高光范围\n* 皮肤、头发、服装、道具和环境的材质表现\n* 人物与背景的亮度层次及适度景深\n* 正反打或切镜后的曝光、肤色、白平衡与主光方向连续性\n* 说话和小幅转头时的面部与边缘稳定性\n* 可见动作\n* 具体对白\n* 每句重要对白的发声方式\n* 对白前后的具体反应\n* 最终可见状态\n\n如果是多段视频：\n\n**每一段都必须是完全独立、可单独复制给 H3 使用的完整 Prompt。**\n\n---\n\n## overall_soundscape:\n\n使用英文。\n\n描述：\n\n* dialogue volume\n* stable vocal identity\n* pitch variation\n* speech rhythm\n* room acoustics\n* breathing\n* environmental sounds\n* footsteps\n* fabric\n* prop sounds\n* spatial distance\n\n不要重复剧情。\n\n---\n\n## non_diegetic_music:\n\n使用英文。\n\n无音乐时：\n\n**No non-diegetic music.**\n\n---\n\n# 最终执行原则\n\n**先理解情绪，再删除情绪词。**\n\n**先理解潜台词，再把它变成动作和声音。**\n\n**人物声音和人物外观一样，需要固定身份。**\n\n**每一次 H3 生成都是独立视频。**\n\n**每一个镜头都必须有理由。**\n\n**光影必须有来源，画质必须写成可见结果。**\n\n**默认追求自然肤质、克制高光、清楚明暗结构和跨镜光影一致性，不用油亮与磨皮代替“高级感”。**\n\n**H3看不到的，不写。**\n\n**H3听不到的，不写。**\n"
+      ]
+    },
+    {
+      "id": 92,
+      "type": "SaveVideo",
+      "pos": [
+        6880,
+        600
+      ],
+      "size": [
+        210,
+        204
+      ],
+      "flags": {},
+      "order": 39,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "link": 338
+        },
+        {
+          "label": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          }
+        },
+        {
+          "label": "format",
+          "name": "format",
+          "type": "COMBO",
+          "widget": {
+            "name": "format"
+          }
+        },
+        {
+          "label": "codec",
+          "name": "codec",
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "widget": {
+            "name": "codec"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "video_url",
+          "name": "video_url",
+          "type": "STRING"
+        },
+        {
+          "label": "video",
+          "name": "video",
+          "type": "VIDEO"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "video/MiniMax_H3",
+        "mp4",
+        "h264",
+        "auto"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 131,
+      "type": "ComfyMathExpression",
+      "pos": [
+        330.1,
+        2230
+      ],
+      "size": [
+        225,
+        74
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "values.a",
+          "name": "values.a",
+          "type": "FLOAT,INT,BOOLEAN",
+          "link": 261
+        },
+        {
+          "label": "values.b",
+          "name": "values.b",
+          "shape": 7,
+          "type": "FLOAT,INT,BOOLEAN"
+        },
+        {
+          "label": "expression",
+          "name": "expression",
+          "type": "STRING",
+          "widget": {
+            "name": "expression"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "FLOAT",
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": []
+        },
+        {
+          "label": "INT",
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            275
+          ]
+        },
+        {
+          "label": "BOOL",
+          "name": "BOOL",
+          "type": "BOOLEAN",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ComfyMathExpression",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "max(5, round(a * 24)) + (5 - (max(5, round(a * 24)) % 17)) % 17"
+      ]
+    },
+    {
+      "id": 129,
+      "type": "RandomNoise",
+      "pos": [
+        2910,
+        740
+      ],
+      "size": [
+        311.57952880859375,
+        86.82489013671875
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "noise_seed",
+          "name": "noise_seed",
+          "type": "INT",
+          "widget": {
+            "name": "noise_seed"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "噪波生成",
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            253
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        1083992254498870,
+        "fixed"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 128,
+      "type": "CLIPLoader",
+      "pos": [
+        0,
+        244
+      ],
+      "size": [
+        493.6200256347656,
+        106
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "clip_name",
+          "name": "clip_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "clip_name"
+          }
+        },
+        {
+          "label": "type",
+          "name": "type",
+          "type": "COMBO",
+          "widget": {
+            "name": "type"
+          }
+        },
+        {
+          "label": "device",
+          "name": "device",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            272
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader",
+        "models": [
+          {
+            "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+            "directory": "text_encoders",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"
+          }
+        ],
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
+        "minimax",
+        "default"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 152,
+      "type": "LoadImage",
+      "pos": [
+        394.1,
+        1565
+      ],
+      "size": [
+        374.0668029785156,
+        599.7125854492188
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 4,
+      "inputs": [
+        {
+          "label": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          }
+        },
+        {
+          "label": "upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            299
+          ]
+        },
+        {
+          "label": "遮罩",
+          "name": "MASK",
+          "type": "MASK"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "a77205df-4c45-4764-9d99-bc54fd5de79b.png",
+        "image"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 162,
+      "type": "LoadImage",
+      "pos": [
+        788.2,
+        1565
+      ],
+      "size": [
+        374.0668029785156,
+        599.7125854492188
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 4,
+      "inputs": [
+        {
+          "label": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          }
+        },
+        {
+          "label": "upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            329
+          ]
+        },
+        {
+          "label": "遮罩",
+          "name": "MASK",
+          "type": "MASK"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "b8c4f5c9d965e4b8c0c80d7526c4f126_1643360766705.jpg",
+        "image"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 185,
+      "type": "CLIPTextEncode",
+      "pos": [
+        2085,
+        1800
+      ],
+      "size": [
+        290,
+        520
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "CLIP",
+          "name": "clip",
+          "type": "CLIP"
+        },
+        {
+          "label": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "条件",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "H3 WEAPON COMBAT CHOREOGRAPHY DIRECTOR\nZero-Memory AI Template\nVersion 1.0\n\nPURPOSE\nYou are a professional action choreographer, fight cinematographer, and MiniMax H3 prompt writer.\nYour job is to turn a user’s weapon-combat idea, first frame, reference image, or short description into a cinematic H3 video prompt.\n\nThe goal is NOT merely realistic fighting.\nThe priority is:\n1. visually attractive choreography,\n2. readable weapon motion,\n3. continuous high-speed movement,\n4. strong cinematic camera design,\n5. weapon-specific style,\n6. clean action causality,\n7. editable transitions,\n8. synchronized physical sound.\n\nTreat every requested video segment as completely independent.\nNever assume the model remembers a previous segment.\nIf the user provides a first frame, that image is the exact opening state and must be used as the beginning of the segment.\n\n==================================================\nI. CORE CHOREOGRAPHY PHILOSOPHY\n==================================================\n\nA good weapon fight is not:\nattack -> block -> attack -> block -> attack -> block.\n\nA good cinematic fight is built from LINKED ACTION PHRASES.\n\nEach phrase should have:\n- one clear visual idea,\n- one clear initiative,\n- one clear spatial movement,\n- one memorable weapon technique,\n- one camera concept,\n- one transition into the next phrase.\n\nThe previous action must create the next action.\n\nExample logic:\nhigh cut -> opponent ducks -> attacker’s weapon continues into a recovery circle -> recovery becomes reverse cut -> defender redirects it outward -> that deflection opens a new side -> attacker changes footwork and attacks from the new side.\n\nDo not reset the fighters to neutral stance after every move.\n\nCINEMATIC CHOREOGRAPHY IS MORE IMPORTANT THAN STRICT REALISM.\nIf the user asks for wuxia, musou, space-opera, superhero, fantasy, or stylish action, prioritize:\n- beautiful silhouettes,\n- large readable arcs,\n- passing exchanges,\n- spins,\n- low slips,\n- fast directional changes,\n- elevation changes,\n- controlled acrobatics,\n- wide-area attacks,\n- dramatic crowd reactions,\n- memorable visual beats.\n\nDo not turn the fight into random flailing.\n\n==================================================\nII. ACTION DENSITY\n==================================================\n\nToo little action causes H3 to slow down, pause, or create empty time.\nToo much unrelated action causes skipped contacts, broken weapons, and chaotic motion.\n\nTarget a near-saturated action density.\n\nRecommended structure:\n\n5 seconds:\n- 2 linked action phrases\n- approximately 5-7 major weapon events\n\n10 seconds:\n- 3 linked action phrases\n- approximately 9-13 major weapon events\n\n15 seconds:\n- 4 linked action phrases\n- approximately 13-18 major weapon events\n\nCount meaningful state changes, not every tiny swing.\n\nFor a 10-second fight, a strong default rhythm is:\n0.0-3.0s: Phrase A — establish the first initiative\n3.0-6.4s: Phrase B — initiative reverses or space changes\n6.4-10.0s: Phrase C — strongest combination + transition\n\nFor a 15-second showcase:\n0.0-3.5s: entrance / target acquisition\n3.5-7.5s: first major technique\n7.5-11.5s: escalation / signature technique\n11.5-15.0s: climax / heroic finish / title transition\n\n==================================================\nIII. SPATIAL MOVEMENT\n==================================================\n\nUnless the user explicitly requests stationary combat, fighters should NOT remain in one place.\n\nMovement must serve combat:\n- diagonal step outside the attack line,\n- pressure forward,\n- controlled retreat,\n- lateral crossing,\n- circling around the opponent,\n- passing shoulder-to-shoulder,\n- moving toward stairs, pillars, gates, walls, banners, wreckage, or other scene anchors,\n- sliding or rolling to create distance,\n- immediately re-entering range.\n\nDefine 2-3 readable SPATIAL ANCHORS when the scene is large.\n\nExample:\n- gate shadow,\n- open center ground,\n- banner side.\n\nOr:\n- lower stone path,\n- middle stairs,\n- upper gate.\n\nThe fight should travel through these anchors.\nThe camera must preserve readable spatial relationships.\n\n==================================================\nIV. INITIATIVE AND “SET-PIECE” CHOREOGRAPHY\n==================================================\n\nAvoid perfectly alternating turns.\n\nBad:\nA attacks -> B blocks -> B attacks -> A blocks -> repeat.\n\nBetter:\nPhrase A:\nA clearly controls the exchange for several actions.\n\nPhrase B:\nB uses one clean reversal to seize initiative.\n\nPhrase C:\nA or B creates a signature finishing combination.\n\nThis makes the fight feel choreographed rather than improvised.\n\nEach phrase should have a THEME.\n\nExamples:\n- low rushing cross,\n- spear-range domination,\n- shield-led entry,\n- spinning reversal,\n- pillar-lane exchange,\n- mounted crowd-clearing sweep,\n- first-person execution,\n- final high-speed crossing clash.\n\n==================================================\nV. WEAPON STABILITY\n==================================================\n\nAlways describe weapon continuity positively.\n\nRecommended generic stability language:\n\n“Each fighter maintains a firm continuous grip on the weapon. The complete weapon stays clearly visible with stable length, shape, and alignment. Every attack, parry, flourish, recovery, and direction change continues directly from the weapon’s previous physical position.”\n\nDo not rely on negative prompts such as:\n“do not disappear”\n“do not change length”\n“no deformation”\n\nDescribe the desired visible state instead.\n\nUse model-recognizable weapon names whenever possible:\n- long single-edged saber\n- long spear\n- two-handed longsword\n- one-handed sword and shield\n- two-handed battle axe\n- poleaxe\n- war hammer\n- curved sword\n- glowing energy blade\n- long-handled crescent blade\n\nIf a historical weapon has an obscure name, pair it with a simple physical description.\n\n==================================================\nVI. WEAPON-SPECIFIC CHOREOGRAPHY\n==================================================\n\nSABER / CURVED SWORD\nGood techniques:\n- diagonal entry cut\n- horizontal passing cut\n- compact wrist-circle recovery\n- shoulder-led reverse cut\n- low slip under the blade\n- passing exchange\n- immediate spin-back re-engagement\n\nSPEAR\nGood techniques:\n- broad horizontal sweep\n- rising sweep\n- long driving thrust\n- sliding grip compression\n- rear-shaft close-range strike\n- re-extension to full reach\n- fast left-right rotating spear flourish across the front of the body\n\nPreferred spear-flourish wording:\n“Subject 1 spins the spear in a fast left-right rotating flourish across the front of the body, then releases the motion directly into the next sweep or thrust.”\n\nThe spear should rotate through the hands.\nDo not make the fighter’s whole body spin unnecessarily.\n\nLONGSWORD / ENERGY BLADE\nGood techniques:\n- figure-eight blade rotations\n- overhead rotations\n- wrist rolls\n- spinning recoveries\n- reverse-side attacks\n- passing exchanges\n- high/low linked combinations\n- close-range multi-contact sequences\n\nAXE / HEAVY WEAPON\nGood techniques:\n- full-body horizontal arc\n- diagonal crushing strike\n- rising reverse swing\n- haft parry\n- hook and drag\n- heavy rebound into the next strike\n- short-range control before a major finishing blow\n\nSWORD + SHIELD\nGood techniques:\n- shield-led entry\n- shield-rim deflection\n- blade hidden behind shield motion\n- shield rotation into sword counter\n- lateral angle change\n- compact close-range passing exchange\n\nMOUNTED POLEARM / GUANDAO\nGood techniques:\n- low mounted horizontal sweep\n- reverse-side return sweep\n- large 360-degree long-handle circular sweep\n- weapon dragging across earth or stone for sparks\n- horse momentum feeding the strike\n- rearing horse + downward crushing attack\n- wide-area crowd-clearing motion\n\n==================================================\nVII. CAMERA RULES\n==================================================\n\nThe camera is part of the choreography.\n\nThe camera should react to:\n- weapon direction,\n- body displacement,\n- impact,\n- initiative change,\n- spatial movement.\n\nStrong camera choices:\n- low side-profile tracking\n- fast three-quarter side tracking\n- wide lateral tracking\n- offset rear pursuit\n- close lateral tracking\n- low ground-level pursuit\n- short whip-pan\n- rapid cut-on-action\n- rapid cut-on-impact\n- dynamic orbit around a major technique\n- overhead drop-in for large-scale action\n- low frontal angle for a rearing horse or heavy finishing strike\n\nIMPORTANT:\nWeapon-led camera does NOT mean pointing the weapon into the lens.\n\nFor spears, polearms, guandao, and other long weapons, side and three-quarter-side views are usually better because they show:\n- full weapon length,\n- full sweep arc,\n- body movement,\n- battlefield displacement.\n\nDo NOT write:\n“camera races along the spear shaft toward the spearhead”\n“spearhead rushes directly toward the lens”\nunless the user specifically wants that effect.\n\nPrefer:\n“the camera stays parallel to the fighter’s movement”\n“the full spear arc remains visible from the side”\n“the camera tracks beside the weapon path”\n“rear three-quarter pursuit angle, offset to the side”\n\n==================================================\nVIII. VISUAL SPEED\n==================================================\n\nDo not create speed only by repeatedly writing “extremely fast.”\n\nShow speed through visible physical evidence:\n- dust exploding under footwork\n- sparks at weapon contact\n- cloth pulled tight by airflow\n- cape snapping\n- rain spray\n- sand or leaves split by weapon paths\n- broken shields\n- snapped spear shafts\n- debris displaced by large attacks\n- bodies recoiling from impact\n- horses reacting\n- banners whipping\n- shockwave-like dust movement\n- energy trails that follow real weapon motion\n\nThe weapon path, body direction, and spatial position must remain readable.\n\n==================================================\nIX. SPECIAL EFFECTS\n==================================================\n\nIf the user requests fantasy, musou, superhero, or sci-fi effects, attach effects to REAL weapon motion.\n\nGood:\nhorizontal sweep -> green crescent energy arc\nreverse sweep -> crossing energy arc\nthrust -> narrow forward energy burst\nground smash -> dust/stone shockwave\nlightsaber clash -> bright energy bloom\n\nThe effect should reinforce the weapon trajectory, not replace choreography.\n\n==================================================\nX. NORMAL DUEL MODE\n==================================================\n\nUnless the user explicitly asks for injury, execution, or a finishing hit, weapon attacks should resolve through:\n- blade-to-blade contact,\n- shaft-to-blade contact,\n- shield block,\n- clean sidestep,\n- duck,\n- body lean,\n- passing outside the attack line,\n- deflection,\n- sliding contact,\n- weapon displacement.\n\nAvoid meaningless weapon-to-body contact where the character simply continues fighting.\n\nNever have a fighter catch a sharp blade with a bare hand unless the user specifically asks for a supernatural effect.\n\n==================================================\nXI. EXECUTION MODE\n==================================================\n\nOnly use this mode when the user explicitly requests an execution, injury, or finishing kill.\n\nAn execution should have a clear progression:\n\n1. BREAK THE DEFENSE\n2. CONTROL POSITION\n3. LAND THE FIRST SERIOUS HIT\n4. SHOW PHYSICAL RESISTANCE\n5. EXTRACT / RESET THE WEAPON IF NEEDED\n6. FORCE THE OPPONENT INTO THE FINAL POSITION\n7. DELIVER THE FINISHING MOTION\n8. TRANSITION AT THE USER’S REQUESTED MOMENT\n\nFor a blade or axe entering the body, describe:\n- contact,\n- sudden loss of weapon speed,\n- visible resistance,\n- the weapon biting in,\n- a brief lodged moment,\n- body reaction around the impact,\n- extraction or deeper follow-through.\n\nUseful sound language:\n- dense wet chop\n- heavy meaty impact\n- short lodged resistance\n- tearing extraction\n- flesh-impact thud\n- heavy body collapse\n\nIf the user wants to imply dismemberment without showing it:\nshow the finishing motion and sound,\nthen transition BEFORE visible physical separation completes.\n\nA strong cinematic example:\nopponent kneels ->\nswitch to first-person view ->\nexecutioner winds the axe sideways ->\nhorizontal axe swing approaches neck height ->\nwet impact sound lands ->\ncamera is violently carried in the same direction as the axe ->\nrapid rotational motion blur ->\nnext scene appears during the spin before decapitation becomes visible.\n\n==================================================\nXII. TRANSITIONS\n==================================================\n\nDo not use the same transition repeatedly.\n\nPossible transition techniques:\n\n1. WEAPON WIPE\nA blade, spear shaft, shield, cape, or polearm fills the frame.\n\n2. SPARK / FIRE BLOOM\nImpact creates sparks, flame, or bright glare that fills the frame.\n\n3. DUST / SMOKE WIPE\nCombat impact throws dust or smoke across the camera.\n\n4. WHIP-PAN MATCH CUT\nFast camera pan continues into the next scene.\n\n5. ROTATIONAL MATCH CUT\nImpact or body rotation drives the camera into a fast spin.\nThe next scene appears during peak rotational blur.\n\n6. LIGHTNING / FLASH REVEAL\nDark frame -> lightning flash -> new environment.\n\n7. ENERGY BLOOM\nEnergy collision becomes a full-screen white or colored flare.\n\n8. FOREGROUND OCCLUSION\nCamera passes behind a pillar, banner, shield, horse, wall, doorway, or other foreground object.\n\n9. IMPACT-DRIVEN POV TRANSITION\nFirst-person impact physically throws or rotates the camera into the next scene.\n\nEnd the segment with motion whenever possible.\nAvoid static “two weapons locked together” endings unless specifically requested.\n\n==================================================\nXIII. SOUND DESIGN\n==================================================\n\nSound must be synchronized to visible action.\n\nDescribe:\n- weapon air movement\n- impact\n- scrape\n- deflection\n- footwork\n- armor\n- cloth\n- environment\n- body reaction\n- debris\n- horse movement\n- shield destruction\n- energy effects if present\n\nEach major action should have a corresponding sound.\n\nExamples:\nspear sweep -> deep broad whoosh\nspearhead thrust -> sharper narrow whistle\nblade clash -> crisp metal impact\nsliding parry -> short metallic scrape\nshield break -> wood crack + fragments\nground smash -> deep impact + stone/dirt burst\nmounted charge -> hoof impacts + tack + armor\nexecution hit -> dense wet impact + brief lodged resistance\n\nDefault:\nnon_diegetic_music: N/A\n\nOnly add music if the user explicitly requests it.\n\n==================================================\nXIV. H3 PROMPT STYLE\n==================================================\n\nUse concrete visible and audible descriptions.\nDo not write abstract director language that cannot be seen or heard.\n\nAvoid vague phrases such as:\n“fight beautifully”\n“be epic”\n“show killing intent”\n“fight like a master”\n\nInstead describe:\n- body position,\n- weapon path,\n- direction,\n- camera movement,\n- speed evidence,\n- environment reaction,\n- sound.\n\nDo not fill the actual H3 prompt with meta-instructions or negative sentences.\nDescribe the desired result positively.\n\nKeep prompts dense but readable.\nDo not explain the same rule multiple times.\n\n==================================================\nXV. OUTPUT FORMAT\n==================================================\n\nAlways output the final H3 prompt in exactly these six sections:\n\nsubject_definitions:\n...\n\nsummary:\n...\n\nretention_analysis:\n...\n\ndetailed_description:\n[Shot 1 | time range]\n...\n\n[Shot 2 | time range]\n...\n\n[Shot 3 | time range]\n...\n\noverall_soundscape:\n...\n\nnon_diegetic_music:\nN/A\n\nFor 15-second sequences, use 4 shots when useful.\n\n==================================================\nXVI. USER INPUT FIELDS\n==================================================\n\nThe user may provide any subset of the following:\n\nVIDEO LENGTH:\n[5s / 10s / 15s]\n\nFIRST FRAME:\n[attached image or description]\n\nCHARACTER 1:\n[appearance / clothing / role]\n\nCHARACTER 2:\n[appearance / clothing / role]\n\nWEAPON 1:\n[type]\n\nWEAPON 2:\n[type]\n\nSCENE:\n[location / era / environment]\n\nSTYLE:\n[grounded live-action / wuxia / musou / dark fantasy / medieval / sci-fi / etc.]\n\nACTION GOAL:\n[duel / breakthrough / crowd-clearing / execution / mounted attack / etc.]\n\nSIGNATURE TECHNIQUES:\n[optional]\n\nCAMERA PREFERENCE:\n[optional]\n\nSPECIAL EFFECTS:\n[optional]\n\nTRANSITION IN:\n[optional]\n\nTRANSITION OUT:\n[optional]\n\nAUDIO:\n[optional]\n\nTRIGGER WORD:\n[optional LoRA trigger token]\n\nTITLE TEXT:\n[optional]\n\nADDITIONAL RULES:\n[optional]\n\nIf a trigger word is provided, use it exactly as provided.\nDo not invent a trigger word.\nUse it only where necessary; do not repeatedly attach it to the character identity.\n\n==================================================\nXVII. DECISION PROCESS\n==================================================\n\nBefore writing the prompt, silently decide:\n\n1. What are the 2-3 spatial anchors?\n2. What are the 3-4 linked action phrases?\n3. Who owns initiative in each phrase?\n4. What is the signature weapon technique in each phrase?\n5. What camera angle best shows that technique?\n6. How does the camera move with the action?\n7. What visible evidence sells speed and force?\n8. What transition ends the segment?\n9. Which sounds synchronize with each major action?\n10. Does every action start naturally from the previous weapon/body position?\n\nThen write the final six-section H3 prompt.\n\n==================================================\nXVIII. FAILURE PATTERNS TO AVOID\n==================================================\n\nAvoid:\n- fighters standing in place trading attacks\n- random flailing\n- too many unrelated moves\n- resetting to neutral after each strike\n- constant equal turn-taking\n- long idle pauses\n- vague “cinematic” language without physical description\n- weapon flourishes that do not connect to combat\n- full-body spins when only the weapon should rotate\n- long weapon tips repeatedly pointing directly into the camera\n- static clash endings\n- repeated use of the same transition\n- special effects replacing weapon choreography\n- direct body hits in a normal duel with no physical consequence\n- execution hits that pass through the body with no resistance\n- unsynchronized sound\n- assuming continuity from a previous H3 generation\n\n==================================================\nXIX. QUALITY CHECK BEFORE FINAL OUTPUT\n==================================================\n\nBefore sending the prompt, verify:\n\n[ ] Every H3 segment is self-contained.\n[ ] The opening state matches the supplied first frame.\n[ ] Weapon length and grip are stable.\n[ ] There are clear linked action phrases.\n[ ] Initiative changes intentionally.\n[ ] Fighters move through space.\n[ ] Camera angles show the full weapon motion.\n[ ] Long weapons are mainly shown from the side / three-quarter side.\n[ ] Flourishes directly connect into attacks or recoveries.\n[ ] Speed is shown through physical evidence.\n[ ] Ordinary duels avoid meaningless body contact.\n[ ] Execution mode includes resistance and body reaction.\n[ ] The final transition is dynamic and editable.\n[ ] Sound matches visible impacts and movement.\n[ ] non_diegetic_music is N/A unless music was explicitly requested.\n[ ] The final prompt uses the exact six-section H3 structure.\n\n==================================================\nXX. RESPONSE BEHAVIOR\n==================================================\n\nWhen the user gives enough information, do not ask unnecessary follow-up questions.\n\nReturn the usable H3 prompt first.\n\nDo not bury the prompt under long explanations.\n\nIf a short explanation is useful, add only a concise note after the prompt describing:\n- the action phrases,\n- the camera strategy,\n- the transition strategy.\n\nThe final goal is simple:\n\nMAKE THE WEAPON FIGHT LOOK CHOREOGRAPHED, FAST, READABLE, CINEMATIC, AND FUN TO WATCH.\n\n\n==================================================\nXXI. GOOD VS BAD CHOREOGRAPHY EXAMPLES\n==================================================\n\nThese examples are teaching references.\nDo NOT copy them mechanically.\nStudy WHY the good examples work and WHY the bad examples look weak.\n\n--------------------------------------------------\nEXAMPLE 1 — RANDOM TRADING VS LINKED CHOREOGRAPHY\n--------------------------------------------------\n\nBAD:\n“Subject 1 attacks with a horizontal slash. Subject 2 blocks. Subject 2 attacks back. Subject 1 blocks. Subject 1 thrusts. Subject 2 dodges. They continue fighting quickly.”\n\nWHY THIS LOOKS BAD:\n- every action is isolated,\n- initiative alternates mechanically,\n- both fighters repeatedly reset,\n- there is no visual theme,\n- there is no spatial progression,\n- “fighting quickly” does not create cinematic speed,\n- the camera has nothing specific to follow.\n\nGOOD:\n“Subject 1 drives a high diagonal cut that forces Subject 2 to drop beneath the blade. The missed cut continues naturally around Subject 1’s shoulder into a reverse horizontal return. Subject 2 rises inside that returning line, catches it with an angled parry, and carries the blade outward. The deflection opens Subject 1’s right side, so Subject 2 immediately passes across that shoulder and attacks from the new angle. Subject 1 pivots with the passing movement, rolls the saber through a compact recovery circle, and re-enters from behind with a rising cut.”\n\nWHY THIS LOOKS GOOD:\n- each action creates the next,\n- body position and weapon position are inherited,\n- the fighters pass around each other instead of standing still,\n- the sequence has a clear visual rhythm,\n- there are multiple attractive silhouettes,\n- the action reads like a rehearsed movie combination.\n\n--------------------------------------------------\nEXAMPLE 2 — VAGUE SPEAR FLOURISH VS READABLE SPEAR FLOURISH\n--------------------------------------------------\n\nBAD:\n“Subject 1 performs a cool spear flourish and attacks.”\n\nWHY THIS LOOKS BAD:\n- “cool” is abstract,\n- the model must invent the flourish,\n- the fighter may spin the whole body randomly,\n- the spear may lose alignment,\n- the flourish may become disconnected from combat.\n\nGOOD:\n“Subject 1 spins the spear in a fast left-right rotating flourish across the front of the body, both hands controlling the shaft. The spearhead traces two broad lateral arcs. The second arc immediately opens into a full horizontal sweep.”\n\nGOOD ALTERNATIVE:\n“Subject 1 spins the spear in a fast left-right rotating flourish across the front of the body, then snaps the spearhead straight forward into a thrust.”\n\nWHY THIS LOOKS GOOD:\n- the rotation direction is visible,\n- both hands remain connected to the shaft,\n- the spear itself rotates instead of the fighter randomly spinning,\n- the flourish has a functional exit,\n- H3 has a clear next action.\n\n--------------------------------------------------\nEXAMPLE 3 — SPEARHEAD-TO-LENS CAMERA VS SIDE-PROFILE CAMERA\n--------------------------------------------------\n\nBAD:\n“The camera races along the spear shaft toward the spearhead as Subject 1 thrusts. The spearhead passes extremely close to the lens.”\n\nWHY THIS OFTEN LOOKS BAD:\n- the spear repeatedly points directly into the camera,\n- full weapon length becomes difficult to read,\n- the fighter’s body mechanics disappear behind foreshortening,\n- wide spear techniques look small,\n- repeated forward thrust framing becomes visually monotonous.\n\nGOOD:\n“A low side-profile tracking shot runs parallel to Subject 1 as he accelerates across the battlefield. The full spear remains visible in profile. Subject 1 releases a broad rising sweep, lets the motion continue into a reverse-side horizontal sweep, then takes two explosive steps and drives a long thrust through the newly opened lane. The camera stays offset beside him, keeping the complete spear line, body movement, and battlefield displacement readable.”\n\nWHY THIS LOOKS GOOD:\n- full weapon length remains visible,\n- large arcs look large,\n- running speed and body mechanics are readable,\n- the background moves strongly behind the character,\n- the weapon feels integrated with movement rather than aimed at the viewer.\n\nDEFAULT FOR LONG WEAPONS:\nUse side profile, three-quarter side, wide lateral tracking, or offset rear pursuit unless a front-facing shot is intentionally needed.\n\n--------------------------------------------------\nEXAMPLE 4 — “FAST” WITH NO PHYSICAL EVIDENCE VS VISIBLE SPEED\n--------------------------------------------------\n\nBAD:\n“They fight extremely fast with very fast sword attacks and amazing speed.”\n\nWHY THIS LOOKS BAD:\n- speed is described only as an adjective,\n- H3 may still produce slow motion,\n- there is no physical evidence of velocity,\n- the result often feels weightless or vague.\n\nGOOD:\n“Subject 1 bursts laterally across the wet stone path. The saber cuts through a curtain of rain, leaving a sharp split in the spray. Subject 2 ducks beneath the returning blade and slides across the slick ground, water exploding from both boots. Their next clash throws a short burst of sparks sideways; both arms recoil immediately from the impact, and the fighters pass shoulder-to-shoulder before spinning back into range.”\n\nWHY THIS LOOKS GOOD:\nSpeed is shown by:\n- rain displacement,\n- sliding water,\n- sparks,\n- recoil,\n- rapid crossing movement,\n- instant re-engagement.\n\nDo not merely SAY speed.\nSHOW the consequences of speed.\n\n--------------------------------------------------\nEXAMPLE 5 — BORING EQUAL EXCHANGE VS INITIATIVE PHASES\n--------------------------------------------------\n\nBAD:\n“Subject 1 attacks, Subject 2 blocks. Subject 2 attacks, Subject 1 blocks. They exchange many attacks equally for ten seconds.”\n\nWHY THIS LOOKS BAD:\n- no momentum,\n- no dramatic progression,\n- no obvious hero moment,\n- no reversal,\n- the entire ten seconds feels like one repeated beat.\n\nGOOD 10-SECOND STRUCTURE:\n\nPHRASE A — 0.0-3.0s\nSubject 1 dominates range with two linked attacks and forces Subject 2 across the center space.\n\nPHRASE B — 3.0-6.4s\nSubject 2 uses one clean angle change to enter close range and briefly takes control, forcing Subject 1 toward a second spatial anchor.\n\nPHRASE C — 6.4-10.0s\nSubject 1 uses a signature movement to reverse the fight, crosses behind Subject 2, releases the largest attack of the scene, and transitions out dynamically.\n\nWHY THIS LOOKS GOOD:\nThe viewer can FEEL the fight changing.\n\n--------------------------------------------------\nEXAMPLE 6 — STATIC ENDING VS ACTION-DRIVEN TRANSITION\n--------------------------------------------------\n\nBAD:\n“The two fighters lock weapons and stare at each other. Cut to the next scene.”\n\nWHY THIS LOOKS BAD:\n- motion suddenly dies,\n- edit point feels artificial,\n- the next segment has no visual momentum,\n- a fast trailer loses energy.\n\nGOOD — WEAPON WIPE:\n“The final parry throws Subject 1’s saber outward. Subject 1 lets the recoil continue into a full recovery arc, and the dark blade sweeps across the entire foreground until it fills the frame.”\n\nGOOD — WHIP-PAN:\n“Subject 2 slips past the finishing strike and both fighters cross in opposite directions. The camera whip-pans with Subject 2’s movement; the next scene appears during the fastest part of the pan.”\n\nGOOD — ROTATIONAL MATCH CUT:\n“The horizontal axe impact carries the first-person camera violently sideways in the same direction as the swing. Fire, chains, and stone stretch into circular streaks. The next environment appears at peak rotational blur while the camera is still spinning.”\n\nGOOD — DUST / SMOKE:\n“The heavy ground strike blasts dust directly across the camera. The next scene appears as the dust clears.”\n\nGOOD — ENERGY BLOOM:\n“The red and blue energy blades collide in a bright X-shaped impact. The collision blooms into a full-screen white flare, which resolves into the next environment.”\n\nWHY THESE LOOK GOOD:\nThe cut is caused by the action itself.\n\n--------------------------------------------------\nEXAMPLE 7 — WEAK EXECUTION VS IMPACT WITH RESISTANCE\n--------------------------------------------------\n\nBAD:\n“Subject 1 swings the axe through Subject 2’s body. Subject 2 falls down.”\n\nWHY THIS LOOKS BAD:\n- the weapon passes through like empty air,\n- there is no resistance,\n- the body has no localized reaction,\n- sound cannot synchronize convincingly,\n- the execution feels fake.\n\nGOOD:\n“Subject 1 drives the axe into Subject 2’s abdomen. The blade lands with a dense wet impact and its forward speed drops sharply at contact. The axe bites in and remains lodged for a brief instant. Subject 2’s torso folds around the embedded weapon. Subject 1 plants both feet, locks both hands on the handle, and rips the axe back out with a short tearing extraction. Subject 2 staggers and collapses onto both knees.”\n\nWHY THIS LOOKS GOOD:\n- contact has resistance,\n- the body reacts around the hit,\n- the weapon remains physically engaged,\n- extraction creates a second readable action,\n- the execution has a clear progression.\n\n--------------------------------------------------\nEXAMPLE 8 — BAD FINAL EXECUTION CUT VS CINEMATIC IMPLIED FINISH\n--------------------------------------------------\n\nBAD:\n“Subject 1 raises the axe and chops Subject 2’s head off. Hard cut.”\n\nWHY THIS MAY LOOK CHEAP:\n- the final cut is disconnected from the weapon motion,\n- the most difficult anatomy event is shown directly,\n- the camera does not participate in the finishing action.\n\nGOOD:\n“Subject 2 is already kneeling. The perspective switches to Subject 2’s first-person view. Subject 1 stands several steps ahead, draws the two-handed axe far back to one side, then steps forward and drives the entire body into a powerful horizontal swing toward neck height. The axe crosses the first-person frame at full speed. At the instant of contact, a dense wet chopping sound lands. The camera is immediately carried sideways in the SAME direction as the axe swing and enters a rapid spinning rotation. Fire, chains, sparks, and stone become circular streaks. The next scene appears during peak rotational blur before visible severing completes.”\n\nWHY THIS LOOKS GOOD:\n- the finishing strike is still felt,\n- the impact sound lands,\n- the camera motion is motivated by the strike,\n- the transition hides the difficult dismemberment moment,\n- the edit feels like part of the choreography.\n\n--------------------------------------------------\nEXAMPLE 9 — WEAK CROWD FIGHT VS “MUSOU” CROWD-CLEARING CHOREOGRAPHY\n--------------------------------------------------\n\nBAD:\n“The hero stands in the middle of many enemies and swings the spear several times. Enemies fall around him.”\n\nWHY THIS LOOKS BAD:\n- the hero is stationary,\n- enemies become background props,\n- attacks have no lane or direction,\n- there is no large-scale visual rhythm,\n- the crowd feels random.\n\nGOOD:\n“A low side-tracking camera locks onto the mounted hero as he cuts diagonally through the front collision line. The first low horizontal polearm sweep smashes through several wooden shields and opens a broad lane. Without slowing, the returning motion expands into a full 360-degree long-handle circular sweep, throwing multiple stunt performers backward and snapping spear shafts. The horse keeps driving forward through the broken formation. The camera stays parallel to the charge, showing the full weapon arc, the horse stride, the shield destruction, and the enemy line collapsing around the movement.”\n\nWHY THIS LOOKS GOOD:\n- the hero has a travel direction,\n- each attack opens the next space,\n- wide attacks create wide consequences,\n- side tracking preserves scale,\n- crowd reaction is synchronized with the weapon arc.\n\n--------------------------------------------------\nEXAMPLE 10 — EFFECTS REPLACING CHOREOGRAPHY VS EFFECTS FOLLOWING CHOREOGRAPHY\n--------------------------------------------------\n\nBAD:\n“Subject 1 creates a huge green energy explosion that defeats everyone.”\n\nWHY THIS LOOKS BAD:\n- the effect replaces weapon skill,\n- the weapon becomes irrelevant,\n- the character may stand still,\n- the fight turns into generic VFX.\n\nGOOD:\n“Subject 1 spins the spear left-right across the front of the body while running. The second rotation releases into a huge horizontal sweep. A bright green crescent follows the REAL spear path and expands through the dust. Subject 1 immediately reverses the weapon into a second sweep, creating a crossing green arc, then drives a long thrust through the newly opened lane, producing a narrow forward energy burst.”\n\nWHY THIS LOOKS GOOD:\n- the weapon still performs the choreography,\n- the VFX makes the technique larger,\n- each effect has a clear physical source,\n- the audience can read both martial technique and spectacle.\n\n==================================================\nXXII. MINI REFERENCE — BAD 10-SECOND DUEL\n==================================================\n\nThis is an example of a prompt that may be technically understandable but visually weak:\n\n“Two sword fighters stand in a courtyard and fight very quickly. Subject 1 swings several times and Subject 2 blocks. Subject 2 counters with several attacks and Subject 1 dodges. They circle each other. The camera moves around them cinematically. The swords clash many times with sparks. At the end they lock swords and stare at each other.”\n\nProblems:\n- stationary combat,\n- no spatial anchors,\n- no linked combinations,\n- mechanical turn-taking,\n- vague camera,\n- vague “very quickly,”\n- repeated clashes with no unique visual beat,\n- static ending.\n\n==================================================\nXXIII. MINI REFERENCE — GOOD 10-SECOND DUEL\n==================================================\n\n“Three spatial anchors: gate shadow, open center ground, banner side.\n\n[0.0-3.0s]\nA low three-quarter side tracking shot catches Subject 1 bursting from the gate shadow. A compact saber recovery circle opens directly into a diagonal cut. Subject 2 steps outside the line, redirects the blade, and the glancing contact carries both fighters into the center ground. Subject 1 follows the deflection into a reverse-side return while Subject 2 passes across the outside shoulder.\n\n[3.0-6.4s]\nThe camera cuts laterally across the center ground. Subject 2 now owns the initiative, driving a high-low two-part combination while moving toward the banner side. Subject 1 slips beneath the high line, catches the low return, and rotates through the contact into a rising counter. The collision turns both fighters instead of stopping them, and they exchange screen positions.\n\n[6.4-10.0s]\nA low rear three-quarter pursuit shot follows Subject 1 as both accelerate toward the banners. Subject 1 crosses behind Subject 2, rolls the saber through a tight shoulder-led recovery, and releases the largest horizontal attack of the scene. Subject 2 redirects it while moving, the blades recoil apart, and Subject 1 lets the rebound continue into a full foreground sweep that fills the frame for the transition.”\n\nWhy this works:\n- three distinct visual phrases,\n- clear initiative changes,\n- continuous spatial travel,\n- every weapon position inherits from the previous action,\n- different camera language for each phrase,\n- strong final transition,\n- no dead time.\n\n==================================================\nXXIV. FINAL EXAMPLE-LEARNING RULE\n==================================================\n\nWhen generating a new H3 weapon-combat prompt:\n\nDO NOT imitate the surface vocabulary of these examples.\n\nInstead extract the structure:\n- linked action causality,\n- strong initiative,\n- readable spatial movement,\n- weapon-specific technique,\n- camera angle chosen for that weapon,\n- visible speed evidence,\n- one memorable visual concept per shot,\n- dynamic transition.\n\nIf a new prompt resembles the BAD examples in structure, rewrite it before sending.\n\nIf it resembles the GOOD examples in structure, clarity, and momentum, it is ready for the user.\n"
+      ]
+    },
+    {
+      "id": 167,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1250,
+        1500
+      ],
+      "size": [
+        441.4812316894531,
+        235.1100616455078
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "CLIP",
+          "name": "clip",
+          "type": "CLIP"
+        },
+        {
+          "label": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "条件",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "战斗LORA触发词（可选）LORA Combat Triggers (Optional):：\nprfight2\n终结加强 Executions Increase：\nprfight2,prfin1\n\n动作连续性修复触发词（可选） Action Continuity Repair Trigger Words (Optional)：\nbunny_crisp_motion\n\n武器战斗LORA触发词 Weapon Combat LORA Trigger Words：\nBUNNY\n你没看错，就是BUNNY🐇\n\n"
+      ]
+    },
+    {
+      "id": 137,
+      "type": "LoadImage",
+      "pos": [
+        0,
+        1565
+      ],
+      "size": [
+        374.0668029785156,
+        599.7125854492188
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 4,
+      "inputs": [
+        {
+          "label": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          }
+        },
+        {
+          "label": "upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            278
+          ]
+        },
+        {
+          "label": "遮罩",
+          "name": "MASK",
+          "type": "MASK"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "746340bb-afb8-40b1-a177-c50e8a28ac98.png",
+        "image"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 124,
+      "type": "BasicScheduler",
+      "pos": [
+        2910,
+        200
+      ],
+      "size": [
+        314.4355163574219,
+        106
+      ],
+      "flags": {},
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 298
+        },
+        {
+          "label": "scheduler",
+          "name": "scheduler",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler"
+          }
+        },
+        {
+          "label": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          }
+        },
+        {
+          "label": "denoise",
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "Sigmas",
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            300
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicScheduler",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "simple",
+        9,
+        1
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 138,
+      "type": "PrimitiveStringMultiline",
+      "pos": [
+        0,
+        800
+      ],
+      "size": [
+        630.3446044921875,
+        699.0989990234375
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "value",
+          "name": "value",
+          "type": "STRING",
+          "widget": {
+            "name": "value"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "STRING",
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            279
+          ]
+        }
+      ],
+      "title": "Input Text (Prompt)",
+      "properties": {
+        "Node name for S&R": "PrimitiveStringMultiline",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "subject_definitions:\n<Subject 1> is the female warrior whose facial identity, porcelain skin, silver-white long hair with straight bangs, and ethereal yet lethal demeanor come from the visual description. Her attire consists of a glowing white silk robe with intricate gold embroidery and metallic accents. Her primary weapon is a Tachi (Japanese-style sword) which emits intense crimson red energy effects during combat.\n<Subject 2> is the high-fantasy battlefield environment featuring ruined structures, cracked stone grounds, and a dark, ominous atmosphere where ancient runes and massive shadows reside.\n<Subject 3> is the visual style definition: 3D CG cinematic realism with top-tier Chinese animation aesthetic (Xianxia/Gufeng), global illumination, physically-based rendering (PBR) for satin fabrics and armor, dynamic volumetric fog, and high-gloss material response.\n\nsummary:\nBUNNY\n[reference generation] The target video is a 15-second high-fantasy battle sequence featuring a cold, lethal female warrior with silver-white hair and a white silk robe engaging in extreme-speed combat. The sequence progresses from a supersonic dash and sword draw to rapid slashing, aerial energy storms, a piercing counter-attack, and concludes with a heavy landing and a menacing stare as ancient shadows awaken. The visual style employs 3D CG cinematic realism with PBR materials, volumetric fog, and intense crimson red sword-light effects. No dialogue or subtitles are present.\n\nretention_analysis:\n<Subject 1> (appears in [Shot 1] through [Shot 6]): fully_preserved - The warrior's facial features, silver-white hair with bangs, white silk robe with gold embroidery, and the specific crimson red energy sword effects remain consistent throughout all shots.\n<Subject 2> (appears in [Shot 1] through [Shot 6]): fully_preserved - The battlefield environment maintains its ruined, high-fantasy aesthetic with consistent lighting and atmospheric fog.\n<Subject 3> (appears in [Shot 1] through [Shot 6]): weak_reference - The overall visual quality adheres to the defined 3D CG cinematic style with PBR rendering and volumetric lighting.\n\ndetailed_description:\nThe target video utilizes 3D CG cinematic realism with a top-tier Chinese animation aesthetic, featuring global illumination, physically-based rendering for satin fabrics and armor, and dynamic volumetric fog. The color palette is dominated by cold whites, silvers, and intense crimson red energy effects.\n\n[Shot 1] Extreme low-angle camera starting with a static close-up of <Subject 1>. Within the first 1 second, she instantly bursts from a still state into a supersonic dash. As she sprints at extreme speed, the ground beneath her feet cracks and collapses continuously in a chain reaction, with debris and dust violently ejecting outward due to high-speed airflow. Her silver-white long hair and the hem of her white robe are pulled straight back by wind pressure, creating a sharp, knife-edge silhouette. Mid-dash, she instantly draws her Tachi; the camera freezes on a close-up of the blade: a sweep of crimson metallic glow dominates the frame, signifying an explosion of killing intent.\n\n[Shot 2] At 00:01.000, the camera cuts to a dynamic tracking shot. Enemy attacks strike at close range; <Subject 1> dodges with zero lag, attacks grazing her body. Brief slow-motion emphasizes the contrast of extreme speed, then the rhythm instantly doubles. She dashes low to the ground, leaving multiple afterimages. She executes three ultra-high-speed lethal strikes with her Tachi—horizontal slash, upward thrust, spinning instant kill. The sword moves so fast it weaves a sharp net of red light, tearing enemy armor into fragments with dense sparks flying.\n\n[Shot 3] At 00:04.000, the camera cuts to a wide-angle low angle with a high-altitude diving crane shot. <Subject 1> pushes off the ground into the air in one fluid motion, no lingering in mid-air. Her body flips crisply, and the Tachi cuts an extremely sharp scarlet arc. She releases a cone-shaped sword qi (red energy) storm, vertically bombing the enemy crowd below. The ground undergoes chain explosions, high-frequency camera shake, intense and violent impact, rapid rhythm without drag.\n\n[Shot 4] At 00:07.000, the camera orbits 360 degrees rapidly around <Subject 1>, then instantly cuts to a facial close-up. Cold close-up locking on her face, eyes scanning enemies. She pivots in mid-air to dodge, seamlessly transitioning into a supersonic close-range thrust, piercing through the enemy formation like an arrow. The Tachi penetrates armor, fragments flying. Extreme agility display: wall-kicking for leverage, mid-air direction changes, teleport-like dashes through the battlefield. Only red sword-light afterimages remain across the battlefield. Mystical runes suddenly unfold around her, an spiritual impact wave blasting through the scene.\n\n[Shot 5] At 00:10.000, the camera cuts to a vertical rapid falling shot, freezing at the moment of impact. <Subject 1> hard-blocks a heavy strike, instantly dissipates the force and counters. She spins, delivering a precise counter-thrust with her Tachi, piercing the enemy's core. She shatters a crumbling wall, rocketing straight into the sky, swinging a giant crescent-shaped world-destroying sword qi, frontally tearing through the entire ruined battlefield.\n\n[Shot 6] At 00:12.000, the camera cuts to a slow pull-back wide establishing shot, stable framing. <Subject 1> lands heavily, dust and debris scattering. She holds her Tachi hanging by her side in a sharp, ready stance, the blade still retaining red sword-light. Smoke slowly settles. She raises her eyes, locking onto the depths of the darkness with a cold gaze. In the distance, ancient runes light up, and a massive shadow begins to awaken. She lifts her Tachi in a defensive stance. Her white hair and robe flap violently in the wind, killing intent continuously rising.\n\noverall_soundscape:\nHigh-frequency combat sound effects throughout. Sharp metallic Tachi unsheathing and clashing sounds. Dense red sword qi whistling and air-tearing noises. Deep rumbling and explosion impacts. The soundscape is dominated by high-speed whooshes, sharp metallic impacts, and low-frequency booms from energy releases and ground destruction.\n\nnon_diegetic_music:\nN/A"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 148,
+      "type": "ResolutionSelector",
+      "pos": [
+        580,
+        2230
+      ],
+      "size": [
+        270,
+        170
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "showAdvanced": true,
+      "inputs": [
+        {
+          "label": "preview",
+          "name": "preview",
+          "shape": 7,
+          "type": "RESOLUTION_PREVIEW",
+          "link": null
+        },
+        {
+          "label": "aspect_ratio",
+          "name": "aspect_ratio",
+          "type": "COMBO",
+          "widget": {
+            "name": "aspect_ratio"
+          }
+        },
+        {
+          "label": "megapixels",
+          "name": "megapixels",
+          "type": "FLOAT",
+          "widget": {
+            "name": "megapixels"
+          }
+        },
+        {
+          "label": "multiple",
+          "name": "multiple",
+          "type": "INT",
+          "widget": {
+            "name": "multiple"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "width",
+          "name": "width",
+          "type": "INT",
+          "links": [
+            291
+          ]
+        },
+        {
+          "label": "height",
+          "name": "height",
+          "type": "INT",
+          "links": [
+            292
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ResolutionSelector",
+        "cnr_id": "comfy-core",
+        "ver": "0.30.0",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {
+          "aspect_ratio": true,
+          "megapixels": true,
+          "multiple": true
+        }
+      },
+      "widgets_values": [
+        "16:9 (Widescreen)",
+        1,
+        32
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 132,
+      "type": "PrimitiveFloat",
+      "pos": [
+        0,
+        2230
+      ],
+      "size": [
+        310.0216369628906,
+        58
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "value",
+          "name": "value",
+          "type": "FLOAT",
+          "widget": {
+            "name": "value"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "FLOAT",
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": [
+            261
+          ]
+        }
+      ],
+      "title": "视频时长（秒）",
+      "properties": {
+        "Node name for S&R": "PrimitiveFloat",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        10
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 179,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        4660,
+        200
+      ],
+      "size": [
+        390,
+        82
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 339
+        },
+        {
+          "label": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          }
+        },
+        {
+          "label": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            340
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "Bunny_weapon_combatV1.safetensors",
+        0.65
+      ],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 155,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        4250,
+        200
+      ],
+      "size": [
+        390,
+        82
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 332
+        },
+        {
+          "label": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          }
+        },
+        {
+          "label": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            339
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "minimax_h3_fl2v_turbo_4step_v1.0_768p_comfyui_bf16.safetensors",
+        0.2
+      ],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 156,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        5070,
+        200
+      ],
+      "size": [
+        390,
+        82
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 4,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 340
+        },
+        {
+          "label": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          }
+        },
+        {
+          "label": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            306
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "Motion_Repair.safetensors",
+        0.25
+      ],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 151,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        2339,
+        20
+      ],
+      "size": [
+        524.3643798828125,
+        82
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 4,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 335
+        },
+        {
+          "label": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          }
+        },
+        {
+          "label": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            297,
+            298
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "Motion_Repair.safetensors",
+        0.85
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 176,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        1794,
+        20
+      ],
+      "size": [
+        524.3643798828125,
+        82
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 334
+        },
+        {
+          "label": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          }
+        },
+        {
+          "label": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            335
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "Bunny_weapon_combatV1.safetensors",
+        0.9
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 147,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        1250,
+        20
+      ],
+      "size": [
+        523.2814331054688,
+        82
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 295
+        },
+        {
+          "label": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          }
+        },
+        {
+          "label": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            334
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "minimax_h3_fl2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors",
+        0.7
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 127,
+      "type": "UNETLoader",
+      "pos": [
+        0,
+        100
+      ],
+      "size": [
+        494.80816650390625,
+        82
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "unet_name",
+          "name": "unet_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "unet_name"
+          }
+        },
+        {
+          "label": "weight_dtype",
+          "name": "weight_dtype",
+          "type": "COMBO",
+          "widget": {
+            "name": "weight_dtype"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            315
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader",
+        "models": [
+          {
+            "name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+            "directory": "diffusion_models",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors"
+          }
+        ],
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "minimax_h3_hybrid_fl2va_ref2va_b25-49-int8.safetensors",
+        "default"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 184,
+      "type": "MarkdownNote",
+      "pos": [
+        0,
+        2465
+      ],
+      "size": [
+        637.8342895507812,
+        787.4098510742188
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "# MiniMax H3 双 LoRA 工作流｜使用方法与注意事项\n\n## 使用方法\n\n这套工作流主要搭配两个 LoRA：\n\n* **Combat LoRA**：负责动作速度、连续攻击、受击反馈和整体战斗表现。\n* **动作连续性修复LORA**：负责提高高速动作中的连续性、肢体稳定性和双人交互稳定性。\n* **武器战斗LORA**：主要强化影视化武指、武器交互、大幅度身体位移、武器花式、重击反馈与处决动作。\n\n推荐用法：\n\n**一采：Combat 为主，动作连续性修复 为辅。**\n武器LORA：推荐关闭动作连续修复LORA使用\n\n动作连续性修复 推荐权重：\n\n`0.5–0.7`\n\n复杂高速动作可以适当提高。\n\n**二采：继续保留少量 动作连续性修复。**\n\n\n推荐：\n\n`0.2–0.3`\n\n二采主要用于整理高速运动中的模糊、重影、噪点和局部结构问题，不用于重新生成动作。\n\n## 注意事项\n\n* Combat 决定“动作有多强”，动作连续性修复 主要负责“动作能不能稳定完成”，两者不要当成同类型 LoRA 使用。\n* 如果动作不够快、不够狠，优先调整 Combat，不要一味提高 Motion Consistency。\n* 动作连续性修复 二采权重不要过高，否则可能重新修改第一采已经形成的动作逻辑。\n* 如果第一采动作已经很好，但二采后动作变软、接触点变化或节奏改变，优先降低二采 动作连续性修复 权重。\n* 这套组合不仅适用于武打，也可以用于其他高速动作类 LoRA，例如 武器战斗、体育、舞蹈、跑酷等。\n* Prompt 仍然需要明确动作内容、接触位置和动作结果，LoRA 负责增强模型执行这些动作的能力。\n"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    }
+  ],
+  "links": [
+    [
+      250,
+      120,
+      0,
+      121,
+      1,
+      "VAE"
+    ],
+    [
+      251,
+      119,
+      0,
+      122,
+      1,
+      "VAE"
+    ],
+    [
+      253,
+      129,
+      0,
+      125,
+      0,
+      "NOISE"
+    ],
+    [
+      254,
+      126,
+      0,
+      125,
+      1,
+      "GUIDER"
+    ],
+    [
+      258,
+      122,
+      0,
+      130,
+      0,
+      "IMAGE"
+    ],
+    [
+      259,
+      121,
+      0,
+      130,
+      1,
+      "AUDIO"
+    ],
+    [
+      261,
+      132,
+      0,
+      131,
+      0,
+      "FLOAT"
+    ],
+    [
+      270,
+      136,
+      0,
+      126,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      271,
+      136,
+      1,
+      125,
+      4,
+      "LATENT"
+    ],
+    [
+      272,
+      128,
+      0,
+      136,
+      0,
+      "CLIP"
+    ],
+    [
+      273,
+      119,
+      0,
+      136,
+      1,
+      "VAE"
+    ],
+    [
+      274,
+      120,
+      0,
+      136,
+      2,
+      "VAE"
+    ],
+    [
+      275,
+      131,
+      1,
+      136,
+      13,
+      "INT"
+    ],
+    [
+      278,
+      137,
+      0,
+      136,
+      3,
+      "IMAGE"
+    ],
+    [
+      279,
+      138,
+      0,
+      136,
+      10,
+      "STRING"
+    ],
+    [
+      291,
+      148,
+      0,
+      136,
+      11,
+      "INT"
+    ],
+    [
+      292,
+      148,
+      1,
+      136,
+      12,
+      "INT"
+    ],
+    [
+      295,
+      150,
+      0,
+      147,
+      0,
+      "MODEL"
+    ],
+    [
+      297,
+      151,
+      0,
+      126,
+      0,
+      "MODEL"
+    ],
+    [
+      298,
+      151,
+      0,
+      124,
+      0,
+      "MODEL"
+    ],
+    [
+      299,
+      152,
+      0,
+      136,
+      4,
+      "IMAGE"
+    ],
+    [
+      300,
+      124,
+      0,
+      154,
+      0,
+      "SIGMAS"
+    ],
+    [
+      302,
+      154,
+      0,
+      158,
+      0,
+      "SIGMAS"
+    ],
+    [
+      303,
+      158,
+      0,
+      125,
+      3,
+      "SIGMAS"
+    ],
+    [
+      306,
+      156,
+      0,
+      157,
+      0,
+      "MODEL"
+    ],
+    [
+      307,
+      136,
+      0,
+      157,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      308,
+      160,
+      0,
+      159,
+      0,
+      "NOISE"
+    ],
+    [
+      309,
+      157,
+      0,
+      159,
+      1,
+      "GUIDER"
+    ],
+    [
+      311,
+      158,
+      1,
+      159,
+      3,
+      "SIGMAS"
+    ],
+    [
+      312,
+      125,
+      0,
+      159,
+      4,
+      "LATENT"
+    ],
+    [
+      313,
+      159,
+      0,
+      122,
+      0,
+      "LATENT"
+    ],
+    [
+      314,
+      159,
+      0,
+      121,
+      0,
+      "LATENT"
+    ],
+    [
+      315,
+      127,
+      0,
+      150,
+      0,
+      "MODEL"
+    ],
+    [
+      324,
+      123,
+      0,
+      125,
+      2,
+      "SAMPLER"
+    ],
+    [
+      325,
+      123,
+      0,
+      159,
+      2,
+      "SAMPLER"
+    ],
+    [
+      329,
+      162,
+      0,
+      136,
+      5,
+      "IMAGE"
+    ],
+    [
+      332,
+      150,
+      0,
+      155,
+      0,
+      "MODEL"
+    ],
+    [
+      334,
+      147,
+      0,
+      176,
+      0,
+      "MODEL"
+    ],
+    [
+      335,
+      176,
+      0,
+      151,
+      0,
+      "MODEL"
+    ],
+    [
+      337,
+      130,
+      0,
+      178,
+      0,
+      "VIDEO"
+    ],
+    [
+      338,
+      178,
+      0,
+      92,
+      0,
+      "VIDEO"
+    ],
+    [
+      339,
+      155,
+      0,
+      179,
+      0,
+      "MODEL"
+    ],
+    [
+      340,
+      179,
+      0,
+      156,
+      0,
+      "MODEL"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 27,
+      "title": "01 模型｜大模型 → CLIP → VAE（从上到下）",
+      "color": "#47775b",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        -7.0,
+        44.0,
+        886.1148376464844,
+        553.0
+      ]
+    },
+    {
+      "id": 28,
+      "title": "02 提示词",
+      "color": "#355f73",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        -7.0,
+        744.0,
+        644.3446044921875,
+        762.0989990234375
+      ]
+    },
+    {
+      "id": 29,
+      "title": "03 多参考图",
+      "color": "#355f73",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        -7.0,
+        1509.0,
+        1176.2668029785157,
+        662.7125854492188
+      ]
+    },
+    {
+      "id": 30,
+      "title": "04 时长、帧数与分辨率",
+      "color": "#355f73",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        -7.0,
+        2174.0,
+        864.0,
+        233.0
+      ]
+    },
+    {
+      "id": 31,
+      "title": "05 多参考条件与初始潜变量",
+      "color": "#537f83",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        1243.0,
+        544.0,
+        347.8153076171875,
+        447.0
+      ]
+    },
+    {
+      "id": 32,
+      "title": "06 一采模型 · LoRA 链",
+      "color": "#76558a",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        1243.0,
+        -36.0,
+        1627.3643798828125,
+        145.0
+      ]
+    },
+    {
+      "id": 33,
+      "title": "07 Sigma 调度 → 扩展 → 高低段拆分",
+      "color": "#8a713e",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        2903.0,
+        144.0,
+        909.0,
+        193.0
+      ]
+    },
+    {
+      "id": 34,
+      "title": "08 一采引导、噪声与共享采样器",
+      "color": "#645c8c",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        2903.0,
+        544.0,
+        662.0230712890625,
+        289.82489013671875
+      ]
+    },
+    {
+      "id": 35,
+      "title": "09 一采执行",
+      "color": "#645c8c",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        3853.0,
+        544.0,
+        314.28070068359375,
+        510.9357604980469
+      ]
+    },
+    {
+      "id": 36,
+      "title": "10 二采模型 · LoRA 链",
+      "color": "#76558a",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        4243.0,
+        144.0,
+        1224.0,
+        145.0
+      ]
+    },
+    {
+      "id": 37,
+      "title": "11 二采引导 · 不追加噪声",
+      "color": "#865582",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        5473.0,
+        544.0,
+        264.0,
+        258.0
+      ]
+    },
+    {
+      "id": 38,
+      "title": "12 二采执行",
+      "color": "#865582",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        5753.0,
+        544.0,
+        314.1753234863281,
+        530.5295715332031
+      ]
+    },
+    {
+      "id": 39,
+      "title": "13 视频与音频解码",
+      "color": "#477783",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        6113.0,
+        544.0,
+        249.34353637695312,
+        242.40362167358398
+      ]
+    },
+    {
+      "id": 40,
+      "title": "14 视频合成",
+      "color": "#477783",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        6383.0,
+        544.0,
+        253.69210815429688,
+        189.0
+      ]
+    },
+    {
+      "id": 41,
+      "title": "15 显存清理",
+      "color": "#477783",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        6673.0,
+        544.0,
+        171.38925170898438,
+        89.0
+      ]
+    },
+    {
+      "id": 42,
+      "title": "16 成片保存",
+      "color": "#477783",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        6873.0,
+        544.0,
+        224.0,
+        267.0
+      ]
+    },
+    {
+      "id": 43,
+      "title": "未连接文本节点 · 保留原内容",
+      "color": "#666666",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        1243.0,
+        1444.0,
+        1139.0,
+        883.0
+      ]
+    },
+    {
+      "id": 44,
+      "title": "原工作流说明",
+      "color": "#666666",
+      "font_size": 16,
+      "flags": {},
+      "bounding": [
+        -7.0,
+        2409.0,
+        651.8342895507812,
+        850.4098510742188
+      ]
+    }
+  ],
+  "config": {},
+  "extra": {
+    "links_added_by_ue": [],
+    "qgn_navigation_groups": [],
+    "bunny_workflow": {
+      "purpose": "MiniMax H3 martial-arts motion, temporal continuity and clean low-noise finishing",
+      "name": "BUNNY Combat H3",
+      "motion_stage": {
+        "base_steps": 8,
+        "turbo": 0.7,
+        "combat": 1,
+        "sigma_extension": [
+          3,
+          0.65,
+          0.28,
+          "sine"
+        ]
+      },
+      "source": "MiniMax_H3_00028_.mp4",
+      "version": "1.0",
+      "cleanup_stage": {
+        "disable_noise": true,
+        "turbo": 0.2,
+        "combat": 0.65,
+        "low_sigma_fraction": 0.25
+      }
+    },
+    "0246.VERSION": [
+      0,
+      0,
+      4
+    ],
+    "qgn_locked": false,
+    "VHS_latentpreview": false,
+    "ds": {
+      "scale": 0.2,
+      "offset": [
+        80,
+        100
+      ]
+    },
+    "VHS_KeepIntermediate": true,
+    "VHS_MetadataImage": true,
+    "ue_links": [],
+    "two_stage_sampling_notes": {
+      "extension": "steps 4, sigma 0.65 to 0.22, sine spacing",
+      "tuning": "If still soft, raise split denoise from 0.25 to 0.30 or reduce stage-2 Turbo to 0.10. If motion weakens, lower split denoise to 0.20.",
+      "stage_1": "Original Turbo 0.7 + Combat 1.0; high sigma branch; preserves motion logic.",
+      "stage_2": "DisableNoise; Turbo 0.25 + Combat 0.70; final 25% low sigma branch; restores detail."
+    },
+    "pixaromaGroups": [],
+    "VHS_latentpreviewrate": 0,
+    "frontendVersion": "1.23.0",
+    "KKvideo_latentpreview": false,
+    "KKvideo_latentpreviewrate": 0
+  },
+  "version": 0.4
+}

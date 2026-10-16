@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   getCurrentLanguage,
   messageFor,
@@ -45,4 +46,15 @@ test("未知 ComfyUI 和浏览器语言回退到英文", () => {
   const app = { extensionManager: { setting: { get: () => "fr-FR" } } };
 
   assert.equal(getCurrentLanguage(app, { navigator: { language: "de-DE" } }), "en");
+});
+
+test("动态合并节点在中英及未知语言下显示正确输入名称", () => {
+  const definitions = Object.fromEntries(["zh", "en"].map((language) => [
+    language,
+    JSON.parse(readFileSync(`locales/${language}/nodeDefs.json`, "utf8")),
+  ]));
+  const name = (locale) => definitions[resolveLanguage(locale)].YJDynamicImageBatchConcat.inputs["减去重复帧数"].name;
+  assert.equal(name("zh-CN"), "减去重复帧数");
+  assert.equal(name("en-US"), "Frames to trim");
+  assert.equal(name("fr-FR"), "Frames to trim");
 });
